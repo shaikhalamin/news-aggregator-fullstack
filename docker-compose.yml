@@ -1,0 +1,52 @@
+version: "3"
+
+networks:
+  news-network:
+
+services:
+  backend-service:
+    build:
+      context: ./news-aggregator-be
+      dockerfile: Dockerfile
+    container_name: backend-container
+    restart: unless-stopped
+    ports:
+      - "9000:8000"
+    volumes:
+      - ./news-aggregator-be:/var/www/html
+      - /var/www/html/vendor
+    depends_on:
+      - aggregator_db
+    networks:
+      - news-network
+
+  aggregator_db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: aggregator_database
+      MYSQL_USER: aggregator_user
+      MYSQL_PASSWORD: 12345678
+    container_name: aggregator_db_container
+    ports:
+      - "3330:3306"
+    networks:
+      - news-network
+
+  frontend-service:
+    build:
+      context: ./news-aggregator-fe
+      dockerfile: Dockerfile
+    container_name: frontend-container
+    restart: unless-stopped
+    command: npm run dev
+    depends_on:
+      - backend-service
+    ports:
+      - 7890:3000
+    volumes:
+      - ./news-aggregator-fe:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - news-network

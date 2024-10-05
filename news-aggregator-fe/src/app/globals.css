@@ -1,0 +1,57 @@
+html,
+body {
+  overflow-x: hidden;
+}
+
+.ft-12 {
+  font-size: 12px;
+}
+.ft-13 {
+  font-size: 13px;
+}
+.ft-14 {
+  font-size: 14px;
+}
+
+.ft-15 {
+  font-size: 15px;
+}
+
+.ft-16 {
+  font-size: 16px;
+}
+.ft-17 {
+  font-size: 17px;
+}
+
+.ft-18 {
+  font-size: 18px;
+}
+
+.ft-20 {
+  font-size: 20px;
+}
+
+.ft-22 {
+  font-size: 22px;
+}
+
+.ft-24 {
+  font-size: 24px;
+}
+.ft-30 {
+  font-size: 30px;
+}
+
+.ft-40 {
+  font-size: 40px;
+}
+
+.signin-btn,
+.signup-btn {
+  width: 100%;
+  border-radius: 20px !important;
+}
+.signup-btn {
+  background-color: #1d9bf0 !important;
+}
