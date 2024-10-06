@@ -18,11 +18,12 @@ class UserService
         $payload = [
             ...$data,
             'password' => Hash::make($data['password']),
+            'is_active' => true
         ];
         return User::create($payload);
     }
 
-    public function show(string $id, array $relations = [])
+    public function show(int $id, array $relations = ['preferences'])
     {
         $user = User::with($relations)->find($id);
 
@@ -36,7 +37,7 @@ class UserService
         return $user->refresh();
     }
 
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         return $this->show($id)->delete();
     }
@@ -46,28 +47,22 @@ class UserService
         return User::where('email', $email)->first();
     }
 
-    public function findByUserName(string $username, array $relations = [])
-    {
-        return User::with($relations)->where('username', $username)->first();
-    }
-
-    public function updateRefreshToken($id, $token)
+    public function updateRefreshToken(int $id, string | null $token)
     {
         $user = $this->show($id);
         $user->update(['refresh_token' => $token]);
         return $user;
     }
 
-    public function findByRefreshToken($token)
+    public function findByRefreshToken(string $token)
     {
         $user =  User::where('refresh_token', $token)->first();
         return $user;
     }
 
-    public function searchUser($searchTerm)
+    public function searchUser(string $searchTerm)
     {
         return User::query()
-            ->where('username', 'LIKE', "%{$searchTerm}%")
             ->orWhere('email', 'LIKE', "%{$searchTerm}%")
             ->paginate(50);
     }

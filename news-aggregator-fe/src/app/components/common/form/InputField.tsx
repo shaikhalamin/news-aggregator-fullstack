@@ -5,6 +5,7 @@ interface InputFormProps {
   labelText: string;
   name: string;
   inputType: string;
+  placeholder?: string;
   errorMessage?: string;
   labelCls?: string;
   formCheckCls?: string;
@@ -16,6 +17,7 @@ export const InputField: React.FC<InputFormProps> = ({
   inputType,
   errorMessage,
   labelCls,
+  placeholder,
   ...props
 }) => {
 
@@ -29,6 +31,7 @@ export const InputField: React.FC<InputFormProps> = ({
         {...register(name)}
         autoComplete="off"
         className={`${errorMessage ? "is-invalid" : ""} rounded-0`}
+        placeholder={placeholder ? placeholder : ""}
         {...props}
       />
       {errorMessage && (

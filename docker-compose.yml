@@ -13,15 +13,18 @@ services:
     ports:
       - "9000:8000"
     volumes:
-      - ./news-aggregator-be:/var/www/html
+      - ./news-aggregator-be:/var/www/html:rw
+      - ./news-aggregator-be/storage:/var/www/html/storage
       - /var/www/html/vendor
     depends_on:
       - aggregator_db
+    environment:
+      - TZ=Asia/Dhaka
     networks:
       - news-network
 
   aggregator_db:
-    image: mysql:5.7
+    image: mysql:latest
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 12345678
@@ -33,6 +36,22 @@ services:
       - "3330:3306"
     networks:
       - news-network
+
+  # supervisor:
+  #   build:
+  #     context: ./news-aggregator-be
+  #     dockerfile: Dockerfile
+  #   container_name: laravel-supervisor
+  #   command: supervisord -c /etc/supervisor/supervisord.conf
+  #   volumes:
+  #     - ./news-aggregator-be:/var/www/html:rw
+  #     - ./supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
+  #   depends_on:
+  #     - backend-service
+  #   environment:
+  #     - TZ=Asia/Dhaka
+  #   networks:
+  #     - news-network
 
   frontend-service:
     build:

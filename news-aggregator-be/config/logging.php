@@ -118,6 +118,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'newsapis' => [
+            'driver' => 'daily',
+            'level' => 'debug',
+            'path' => storage_path('logs/user_feed.log'),
+            'days' => 14,
+        ],
+
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,

@@ -39,10 +39,3 @@ export const deleteUser = async (id: number) => {
   return axiosPrivate.delete(`/users/${id}`);
 };
 
-export const searchUsers = async (query: string) => {
-  return axiosPrivate.get(`/users/search?q=${query}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-};

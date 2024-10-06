@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 import { Form, FormText } from "react-bootstrap";
 import { useFormContext } from "react-hook-form";
 
@@ -13,7 +13,7 @@ interface SelectFormProps {
   selectData: GenericArray[];
   errorMessage?: string;
   labelCls?: string;
-  formCheckCls?: string;
+  selectOnChange?: (value: string) => void;
 }
 
 const SelectField: React.FC<SelectFormProps> = ({
@@ -22,19 +22,28 @@ const SelectField: React.FC<SelectFormProps> = ({
   selectData,
   errorMessage,
   labelCls,
+  selectOnChange,
   ...props
 }) => {
-  const { register } = useFormContext();
+  const { setValue } = useFormContext();
+
+  const onChangeSelect = (elem: ChangeEvent<HTMLSelectElement>) => {
+    const value = elem.target.value
+    setValue(fieldName, value)
+    selectOnChange && selectOnChange(value);
+  };
+
   return (
     <Form.Group controlId={`htmlId${fieldName.toLowerCase()}`}>
       <Form.Label className={labelCls}>{labelText}</Form.Label>
       <Form.Select
         defaultValue={"Select"}
-        {...register(fieldName)}
+        onChange={(value) => onChangeSelect(value)}
+        name={fieldName}
         className={errorMessage ? "is-invalid" : ""}
         {...props}
       >
-        <option>Select {labelText}</option>
+        <option value={0}>--Select--</option>
         {selectData.map((item, index) => {
           return (
             <option key={index} value={item.id}>

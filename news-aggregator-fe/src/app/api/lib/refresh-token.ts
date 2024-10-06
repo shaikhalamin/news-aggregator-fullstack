@@ -20,12 +20,12 @@ const refreshTokenFn = async () => {
         },
       }
     );
-    console.log("refreshtoken obj ", response?.data);
+    console.log("refreshtoken obj ", response?.data?.data);
     const newSession = response?.data?.data;
 
     console.log("access token from refresh token", newSession);
 
-    if (!newSession?.access_token) {
+    if (newSession?.access_token) {
       removeLocalSession();
     }
 
@@ -33,7 +33,7 @@ const refreshTokenFn = async () => {
   } catch (error) {
     console.log("Axios error data fetching ..", error);
     removeLocalSession();
-    window.location.href = FE_BASE as string;
+    window.location.href = `${FE_BASE}/auth/signin` as string;
   }
 };
 

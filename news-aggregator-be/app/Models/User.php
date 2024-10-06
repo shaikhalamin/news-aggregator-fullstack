@@ -22,6 +22,8 @@ class User extends Authenticatable
         'last_name',
         'email',
         'password',
+        'is_active',
+        'refresh_token'
     ];
 
     /**
@@ -32,6 +34,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'refresh_token',
     ];
 
     /**
@@ -43,4 +46,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function feed()
+    {
+        return $this->hasOne(UserFeed::class);
+    }
+
+    public function preferences()
+    {
+        return $this->hasMany(UserPreference::class);
+    }
 }

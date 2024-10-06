@@ -5,55 +5,13 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import styles from "./navbar.module.css";
 import HamBurgerIcon from "./HamBurgerIcon";
-// import { useRouter } from "next/router";
-import { useState } from "react";
-import { NavDropdown } from "react-bootstrap";
-
-// import ProfileNavItem from "../ProfileNavItem";
-
-const categories = [
-  {
-    id: 7,
-    name: "Sweets",
-    alias: "sweets",
-  },
-  {
-    id: 6,
-    name: "Snacks",
-    alias: "snacks",
-  },
-  {
-    id: 5,
-    name: "Buiscuits",
-    alias: "biscuits",
-  },
-  {
-    id: 4,
-    name: "Cake",
-    alias: "cake",
-  },
-  {
-    id: 3,
-    name: "Coockies",
-    alias: "coockies",
-  },
-  {
-    id: 2,
-    name: "Bread/Bun",
-    alias: "bread_bun",
-  },
-  {
-    id: 1,
-    name: "Others",
-    alias: "others",
-  },
-];
+import { useEffect, useState } from "react";;
+import { getLocalSession } from "@/app/api/local-storage";
+import ProfileNavItems from "./ProfileNavItems";
 
 const NewsAgNavbar = () => {
-  // const router = useRouter();
   const [buttonRef, setButtonRef] = useState<number | string>("");
-  // const { data: session } = useSession();
-  // const { cartItems, setCartShow } = useBakeryContext();
+  const session = getLocalSession();
 
   return (
     <Navbar
@@ -90,7 +48,7 @@ const NewsAgNavbar = () => {
             </Nav.Link>
           </Nav>
           <Nav>
-            { (
+            {!session && (
               <>
                 <Nav.Link
                   href="/auth/signin"
@@ -105,9 +63,9 @@ const NewsAgNavbar = () => {
                   Sign Up
                 </Nav.Link>
               </>
-            )} 
+            )}
 
-            {/* {session && <ProfileNavItem />} */}
+            {session && <ProfileNavItems />}
           </Nav>
         </Navbar.Collapse>
       </Container>

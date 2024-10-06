@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Jobs\FetchUserFeedJob;
 use App\Models\User;
 use App\Services\User\UserService;
 use Symfony\Component\HttpFoundation\Response as RESPONSE;
@@ -36,6 +37,8 @@ class UserController extends AbstractApiController
     {
         $response = $this->userService->create($request->validated());
 
+        dispatch(new FetchUserFeedJob($response->id));
+
         return $this->apiSuccessResponse($response, RESPONSE::HTTP_CREATED);
     }
 
@@ -47,7 +50,9 @@ class UserController extends AbstractApiController
      */
     public function show(User $user)
     {
-        return $this->apiSuccessResponse($user, RESPONSE::HTTP_OK);
+        $response = $this->userService->show($user->id);
+
+        return $this->apiSuccessResponse($response, RESPONSE::HTTP_OK);
     }
 
     /**

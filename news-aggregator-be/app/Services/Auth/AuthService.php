@@ -41,4 +41,11 @@ class AuthService
 
         return  $this->createUserToken($user);
     }
+
+    public function logOut($user)
+    {
+        $this->userService->updateRefreshToken($user->id, null);
+        
+        return $user->currentAccessToken()->delete();
+    }
 }

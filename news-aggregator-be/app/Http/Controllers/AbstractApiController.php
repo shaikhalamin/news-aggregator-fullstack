@@ -8,13 +8,19 @@ class AbstractApiController extends Controller
     {
         $response = [
             'success' => true,
-            'data' => $apiResult,
+            'data' => $apiResult
         ];
+
         return response()->json($response, $status);
     }
 
-    protected function apiErrorResponse(mixed $errorResult, int $status = 404)
+    protected function apiErrorResponse(array $errors, int $status = 404)
     {
-        return response()->json($errorResult, $status);
+        $response = [
+            'success' => false,
+            ...$errors
+        ];
+
+        return response()->json($response, $status);
     }
 }

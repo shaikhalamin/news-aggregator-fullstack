@@ -7,5 +7,5 @@ export const login = async (loginData: SignInFormFields) => {
 };
 
 export const authLogOut = async () => {
-  return axiosPrivate.post("/auth/logout");
+  return axiosPrivate.post(`/auth/logout`);
 };

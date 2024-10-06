@@ -15,10 +15,12 @@ import BaseContainer from "../common/container/BaseContainer";
 import { InputField } from "../common/form/InputField";
 import InputGroupCustomField from "../common/form/InputGroupCustomField";
 import SubmitButton from "../common/form/SubmitButton";
+import { useRouter } from "next/navigation";
 
 const SignUp = () => {
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [revealed, setRevealed] = useState<boolean>(false);
+  const router = useRouter();
 
   const reactHookFormMethods = useForm<SignUpFormFields>({
     resolver: yupResolver(signUpSchema),
@@ -43,9 +45,9 @@ const SignUp = () => {
       setSubmitLoading(true);
       const newUser = await createUser(singUpPayload);
       setSubmitLoading(false);
-      console.log("newUser", newUser?.data);
-      if (newUser.data) {
-        alert("New user created !");
+      if (newUser?.status === 201) {
+        reset();
+        router.push("/auth/signin");
       } else {
         alert("Something went wrong !");
       }

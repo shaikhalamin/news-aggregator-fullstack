@@ -3,7 +3,8 @@ import { FieldValues, Path, UseFormSetError } from "react-hook-form";
 
 export const populateServerValidationError = <T extends FieldValues>(
   error: any,
-  setError: UseFormSetError<T>
+  setError: UseFormSetError<T>,
+  onCustomError?: (message: string) => void
 ) => {
   if (error instanceof AxiosError) {
     const errors = error.response?.data?.errors;
@@ -15,6 +16,11 @@ export const populateServerValidationError = <T extends FieldValues>(
           message: message,
         });
       });
+    }
+
+    const customMessage = error.response?.data?.message;
+    if (!errors && customMessage) {
+      onCustomError && onCustomError(customMessage);
     }
   }
 };
