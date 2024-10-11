@@ -1,5 +1,5 @@
 export type UserFeed = {
-  id: number;
+  id?: number;
   title: string | null;
   description: string | null;
   content: string | null;

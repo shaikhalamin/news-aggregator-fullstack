@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Form, Row, Col, Card, Container } from "react-bootstrap";
+import { Form, Row, Col, Card, Container, Button } from "react-bootstrap";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FeedFilterFormFields, FeedFilterSchema } from "./feedFilterHelpers";
@@ -9,11 +9,25 @@ import { InputField } from "../common/form/InputField";
 import { getErrorMessage } from "@/app/utils/auth";
 import CustomDatePicker from "../common/form/CustomDatePicker";
 import SelectField from "../common/form/SelectField";
-import { getNewsCategoriesBySource } from "@/app/api/services/search-filters";
+import {
+  getNewsCategoriesBySource,
+  getSearchResult,
+} from "@/app/api/services/search-filters";
 import { generateQueryFilterUrl } from "@/app/utils/api";
 import { formatFilterObject } from "@/app/utils/filter";
+import { UserFeed } from "@/app/types/user/UserFeed";
 
-export const FeedFilterComponent = () => {
+type FeedFilterProps = {
+  onSearchFilter: (isSearching: boolean) => void;
+  onSearchResult: (searchResult: UserFeed[]) => void;
+  onClearFilter: (isClear: boolean) => void;
+};
+
+export const FeedFilterComponent: React.FC<FeedFilterProps> = ({
+  onSearchFilter,
+  onSearchResult,
+  onClearFilter,
+}) => {
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
 
   const reactHookFormMethods = useForm<FeedFilterFormFields>({
@@ -60,10 +74,18 @@ export const FeedFilterComponent = () => {
   };
 
   const onSubmit = async (data: FeedFilterFormFields) => {
-    const filterObject  = formatFilterObject(data)
-    const filterUrl = generateQueryFilterUrl(filterObject)
+    const filterObject = formatFilterObject(data);
+    const { filterUrl, queryParams } = generateQueryFilterUrl(filterObject);
+    console.log("filterUrl", filterUrl);
 
-    console.log("filterUrl", filterUrl)
+    if (filterUrl) {
+      onSearchFilter(true);
+      getSearchResult(filterUrl).then((res) => {
+        console.log("filter response : ", res?.data?.data);
+        onSearchFilter(false);
+        onSearchResult(res?.data?.data as UserFeed[]);
+      });
+    }
   };
 
   return (
@@ -125,16 +147,34 @@ export const FeedFilterComponent = () => {
                             />
                           </Col>
                           <Col md="4">
-                            <div className="mt-3">
-                              <SubmitButton
-                                title="Search"
-                                isLoading={submitLoading}
-                                loadingTitle=""
-                                buttonCls="w-100 mt-3 signup-btn"
-                                variant="primary"
-                                isDisabled={submitLoading}
-                              />
-                            </div>
+                            <Row>
+                              <Col md="6">
+                                <div className="mt-3">
+                                  <SubmitButton
+                                    title="Search"
+                                    isLoading={submitLoading}
+                                    loadingTitle=""
+                                    buttonCls="w-100 mt-3 signup-btn"
+                                    variant="primary"
+                                    isDisabled={submitLoading}
+                                  />
+                                </div>
+                              </Col>
+                              <Col md="6">
+                                <div className="mt-3">
+                                  <Button
+                                    variant="danger"
+                                    className="mt-3"
+                                    onClick={() => {
+                                      onClearFilter(true);
+                                      reset();
+                                    }}
+                                  >
+                                    Clear
+                                  </Button>
+                                </div>
+                              </Col>
+                            </Row>
                           </Col>
                         </Row>
                       </Form>

@@ -21,7 +21,8 @@ class UserPreferenceController extends AbstractApiController
      */
     public function index()
     {
-        $response = $this->userPreferenceService->list();
+        $userId = auth()->user()->id;
+        $response = $this->userPreferenceService->list($userId);
 
         return $this->apiSuccessResponse($response, RESPONSE::HTTP_OK);
     }
@@ -34,7 +35,7 @@ class UserPreferenceController extends AbstractApiController
     {
         $userId = auth()->user()->id;
         $response = $this->userPreferenceService->create($request->validated(), $userId);
-        dispatch(new FetchUserFeedJob($userId));
+       // dispatch(new FetchUserFeedJob($userId));
 
         return $this->apiSuccessResponse($response, RESPONSE::HTTP_CREATED);
     }

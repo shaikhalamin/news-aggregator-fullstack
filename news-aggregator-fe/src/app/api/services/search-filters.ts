@@ -8,4 +8,10 @@ export const getNewsCategoriesBySource = (source: string) => {
   });
 };
 
-
+export const getSearchResult = (filterQuery: string) => {
+  return axiosPrivate.get(`/search-filter?${filterQuery}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};

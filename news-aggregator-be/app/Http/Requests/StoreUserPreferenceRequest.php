@@ -22,7 +22,7 @@ class StoreUserPreferenceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'source' => 'required|string|unique:user_preferences,source|max:255',
+            'source' => 'required|string|max:255',
             'metadata' => 'sometimes|required|array',
             'metadata.categories' => 'sometimes|required|array|min:1',
             'metadata.categories.*' => 'sometimes|required|string|max:255',

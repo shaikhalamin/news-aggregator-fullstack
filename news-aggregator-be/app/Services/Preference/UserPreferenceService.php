@@ -6,9 +6,9 @@ use App\Models\UserPreference;
 
 class UserPreferenceService
 {
-    public function list()
+    public function list(int $userId)
     {
-        return UserPreference::orderBy('updated_at', 'desc')->get();
+        return UserPreference::where(['user_id' => $userId])->orderBy('updated_at', 'desc')->get();
     }
 
     public function create(array $data, int $userId)
@@ -17,7 +17,8 @@ class UserPreferenceService
             ...$data,
             'user_id' => $userId
         ];
-        return UserPreference::create($payload);
+
+        return UserPreference::updateOrCreate(['source' => $data['source'], 'user_id' => $userId], $payload);
     }
 
     public function show(int $id)
