@@ -31,7 +31,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/auth/user', [AuthController::class, 'user']);
     Route::get('/search-filter', [SearchFilterController::class, 'search']);
     Route::get('/news-categories/{source}', [SearchFilterController::class, 'getSourceCategories']);
+
+    Route::get('user-preferences/type/{source}', [UserPreferenceController::class, 'getPreferenceBySource']);
     Route::apiResource('user-preferences', UserPreferenceController::class);
     Route::apiResource('user-feeds', UserFeedController::class);
-    
 });

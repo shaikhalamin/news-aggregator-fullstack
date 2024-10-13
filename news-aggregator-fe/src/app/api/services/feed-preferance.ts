@@ -9,12 +9,18 @@ export const setFeedPreferance = async (payload: FeedPreferancePayloadType) => {
   });
 };
 
-
 export const getFeedPreferance = async () => {
-    return axiosPrivate.get("/user-preferences", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  };
+  return axiosPrivate.get("/user-preferences", {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
 
+export const getFeedPreferanceByNewsSource = async (newsSource: string) => {
+  return axiosPrivate.get(`/user-preferences/type/${newsSource}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};

@@ -29,6 +29,7 @@ import {
 import { preparePreferencePayload } from "@/app/utils/feed-preferance";
 import {
   getFeedPreferance,
+  getFeedPreferanceByNewsSource,
   setFeedPreferance,
 } from "@/app/api/services/feed-preferance";
 
@@ -41,13 +42,25 @@ export const NewsSourcePreference = () => {
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [checkedCategories, setCheckedCategories] = useState<string[]>([]);
   const [prefList, setPrefList] = useState<FeedPreference[]>([]);
+  const [newsSource, setNewsSource] = useState<string>("");
 
   useEffect(() => {
     getFeedPreferance().then((res) => {
-      console.log("preflist", res?.data);
+      // console.log("preflist", res?.data);
       setPrefList(res?.data?.data);
     });
   }, []);
+
+  useEffect(() => {
+    newsSource.length > 0 &&
+      getFeedPreferanceByNewsSource(newsSource).then((userPreference) => {
+        const userCheckedCategories = userPreference?.data?.data?.metadata
+          ?.categories as string[];
+        let updatedList = [...checkedCategories];
+        updatedList.splice(0, updatedList.length, ...userCheckedCategories);
+        setCheckedCategories(updatedList);
+      });
+  }, [newsSource]);
 
   const reactHookFormMethods = useForm<NewsSourceFormFields>({
     resolver: yupResolver(NewsSourceSchema),
@@ -90,16 +103,18 @@ export const NewsSourcePreference = () => {
 
   const [categories, setCategories] = useState<CategoryType[]>([]);
 
-  const selectOnChange = (value: string) => {
-    getNewsCategoriesBySource(value).then((response) => {
-      const sourceCategories = response?.data?.data?.map((category: string) => {
+  const selectOnNewsSourceChange = async (source: string) => {
+    const categoriesResponse = await getNewsCategoriesBySource(source);
+    const sourceCategories = categoriesResponse?.data?.data?.map(
+      (category: string) => {
         return {
           id: category,
           name: category.charAt(0).toUpperCase() + category.slice(1),
         };
-      });
-      setCategories(sourceCategories);
-    });
+      }
+    );
+    setCategories(() => sourceCategories);
+    setNewsSource(source);
   };
 
   const handleSearchPreferenceList = (preference: FeedPreference) => {
@@ -136,6 +151,7 @@ export const NewsSourcePreference = () => {
     } else {
       updatedList.splice(checkedCategories.indexOf(target.value), 1);
     }
+    console.log("updatedCheckedList", updatedList);
     setCheckedCategories(updatedList);
     setValue("categories", updatedList);
   };
@@ -158,7 +174,7 @@ export const NewsSourcePreference = () => {
                               labelText="Source"
                               fieldName="source"
                               selectData={sourceNameList}
-                              selectOnChange={selectOnChange}
+                              selectOnChange={selectOnNewsSourceChange}
                               errorMessage={errorMessage("source")}
                             />
                           </Col>
@@ -181,6 +197,7 @@ export const NewsSourcePreference = () => {
                                       <Form.Check.Input
                                         type={"checkbox"}
                                         value={category.id}
+                                        checked={checkedCategories.includes(category.id)}
                                         onChange={handleFeature}
                                       />
                                       <Form.Check.Label className={`ft-13`}>
@@ -211,7 +228,11 @@ export const NewsSourcePreference = () => {
                           <Col md="10">
                             {fields.map((field, index) => {
                               return (
-                                <Row className="mb-1" key={field.id}>
+                                <Row
+                                  key={index}
+                                  className="mb-1"
+                                  key={field.id}
+                                >
                                   <Col md="6">
                                     <InputField
                                       labelText="Author"

@@ -70,4 +70,14 @@ class UserPreferenceController extends AbstractApiController
 
         return $this->apiSuccessResponse($response, RESPONSE::HTTP_NO_CONTENT);
     }
+
+     /**
+     * get preference by news source
+     */
+    public function getPreferenceBySource(string $newsSource)
+    {
+        $response = $this->userPreferenceService->getPreferenceBySource($newsSource);
+
+        return $this->apiSuccessResponse($response, RESPONSE::HTTP_OK);
+    }
 }

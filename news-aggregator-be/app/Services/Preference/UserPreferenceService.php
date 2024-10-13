@@ -51,4 +51,9 @@ class UserPreferenceService
     {
         return $this->show($id)->delete();
     }
+
+    public function getPreferenceBySource(string $newsSource)
+    {
+        return UserPreference::where('source', $newsSource)->first();
+    }
 }
