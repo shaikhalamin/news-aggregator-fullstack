@@ -17,6 +17,11 @@ class GuardianApi implements NewsApiInterface
         $this->sourceConfig = config('news_agrregator.sources' . '.' . AggregatorType::GURDIAN_API);
     }
 
+   // https://content.guardianapis.com/search?section=sport&author=John%20Doe&author=Jane%20Smith&api-key=YOUR_API_KEY
+
+   //https://content.guardianapis.com/search?section=sport,culture&author=John%20Doe&api-key=YOUR_API_KEY
+
+
     public function format(array $params = [])
     {
         $filterParams = [];
@@ -35,6 +40,10 @@ class GuardianApi implements NewsApiInterface
 
         if (!empty($params['category'])) {
             $filterParams['section'] = $params['category'];
+        }
+
+        if (!empty($params['author'])) {
+            $filterParams['author'] = $params['author'];
         }
 
         return $filterParams;

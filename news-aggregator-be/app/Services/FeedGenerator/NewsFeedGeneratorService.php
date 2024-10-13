@@ -22,24 +22,32 @@ class NewsFeedGeneratorService
             }
             Log::info('[NewsFeedGeneratorService]: first name  ===> : ' . $user->first_name);
             $userPreferences = $user->preferences;
-            if (!count($userPreferences)) {
-                Log::info('[NewsFeedGeneratorService]: processing deafult source list ===> : ');
-                $preferenceList = [
-                    AggregatorType::NEWS_API_ORG,
-                    AggregatorType::GURDIAN_API,
-                    AggregatorType::NYTIMES_API
-                ];
-                Log::info('[NewsFeedGeneratorService]: processing deafult source list ===> : ');
-                foreach ($preferenceList as $preference) {
-                    Log::info('[NewsFeedGeneratorService]: dispatching default source preference to store ===> : ' . $preference);
-                    dispatch(new StoreUserSourceNewsJob($user->id, $preference, FeedPreferenceType::DEFAULT));
-                }
-            } else {
-                foreach ($userPreferences as $preference) {
-                    Log::info('[NewsFeedGeneratorService]: dispatching source preference to store ===> : ' . $preference->source);
-                    dispatch(new StoreUserSourceNewsJob($user->id, $preference->source, FeedPreferenceType::PREFERED));
-                }
-            }
+
+            // if(!empty($userPreferences) && count($userPreferences) > 0){
+            //     foreach ($userPreferences as $preference) {
+            //         Log::info('[NewsFeedGeneratorService]: dispatching source preference to store ===> : ' . $preference->source);
+            //         dispatch(new StoreUserSourceNewsJob($user->id, $preference->source, FeedPreferenceType::PREFERED));
+            //     }
+            // }
+
+            // if (!count($userPreferences)) {
+            //     Log::info('[NewsFeedGeneratorService]: processing deafult source list ===> : ');
+            //     $preferenceList = [
+            //         AggregatorType::NEWS_API_ORG,
+            //         AggregatorType::GURDIAN_API,
+            //         AggregatorType::NYTIMES_API
+            //     ];
+            //     Log::info('[NewsFeedGeneratorService]: processing deafult source list ===> : ');
+            //     foreach ($preferenceList as $preference) {
+            //         Log::info('[NewsFeedGeneratorService]: dispatching default source preference to store ===> : ' . $preference);
+            //         dispatch(new StoreUserSourceNewsJob($user->id, $preference, FeedPreferenceType::DEFAULT));
+            //     }
+            // } else {
+            //     foreach ($userPreferences as $preference) {
+            //         Log::info('[NewsFeedGeneratorService]: dispatching source preference to store ===> : ' . $preference->source);
+            //         dispatch(new StoreUserSourceNewsJob($user->id, $preference->source, FeedPreferenceType::PREFERED));
+            //     }
+            // }
         } catch (Throwable $th) {
             Log::info('[NewsFeedGeneratorService]: [error]:   ===> : ' . $th->getMessage());
         }

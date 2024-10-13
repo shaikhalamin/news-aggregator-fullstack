@@ -26,7 +26,7 @@ class UserPreferenceService
         return UserPreference::find($id);
     }
 
-    public function update(array $data, $userPreference)
+    public function update(array $data, $userPreference, $userId)
     {
         $metadata = $userPreference->metadata;
         $payload = $metadata;
@@ -37,11 +37,12 @@ class UserPreferenceService
         if (!empty($data['metadata']['authors'])) {
             $payload['authors'] = $data['metadata']['authors'];
         }
+
+        
+
         $payload['metadata'] = $payload;
 
-        if (!empty($data['user_id'])) {
-            $payload['user_id'] = $data['user_id'];
-        }
+        $payload['user_id'] = $userId;
         $userPreference->update($payload);
 
         return $userPreference->refresh();
@@ -52,8 +53,8 @@ class UserPreferenceService
         return $this->show($id)->delete();
     }
 
-    public function getPreferenceBySource(string $newsSource)
+    public function getPreferenceBySource(string $newsSource, int $userId)
     {
-        return UserPreference::where('source', $newsSource)->first();
+        return UserPreference::where(['source' => $newsSource, 'user_id' => $userId])->first();
     }
 }

@@ -17,6 +17,9 @@ class NytimesApi implements NewsApiInterface
         $this->sourceConfig = config('news_agrregator.sources' . '.' . AggregatorType::NYTIMES_API);
     }
 
+    //https://api.nytimes.com/svc/search/v2/articlesearch.json?q=&fq=section_name:("Category Name") AND byline:("Author Name")&api-key=your_api_key
+
+
     public function format(array $params = [])
     {
         $filterParams = [];
@@ -32,6 +35,11 @@ class NytimesApi implements NewsApiInterface
         if (!empty($params['endDate'])) {
             $filterParams['end_date'] = $params['endDate'];
         }
+
+        //fq=section_name:("sports") AND byline:("By Clifton Brown")
+
+        //$fq = 'section_name:("' . $category . '") AND byline:("' . $author . '")';
+        // $encoded_fq = urlencode($fq);
 
         return $filterParams;
     }

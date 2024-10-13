@@ -24,10 +24,10 @@ class StoreUserPreferenceRequest extends FormRequest
         return [
             'source' => 'required|string|max:255',
             'metadata' => 'sometimes|required|array',
-            'metadata.categories' => 'sometimes|required|array|min:1',
-            'metadata.categories.*' => 'sometimes|required|string|max:255',
-            'metadata.authors' => 'sometimes|required|array|min:1',
-            'metadata.authors.*' => 'sometimes|required|string|max:255',
+            'metadata.categories' => 'sometimes|array',
+            'metadata.categories.*' => 'sometimes|string|max:255',
+            'metadata.authors' => 'sometimes|array',
+            'metadata.authors.*' => 'sometimes|string|max:255',
         ];
     }
 }

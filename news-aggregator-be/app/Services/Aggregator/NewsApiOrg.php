@@ -15,6 +15,9 @@ class NewsApiOrg implements NewsApiInterface
     {
     }
 
+    // https://newsapi.org/v2/everything?q=(technology OR science) AND ("Sophie Charara" OR "Kate Knibbs")&apiKey=YOUR_API_KEY
+
+
     public function format(array $params = [])
     {
         $filterParams = [];

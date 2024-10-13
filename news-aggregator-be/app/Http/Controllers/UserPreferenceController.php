@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\Response as RESPONSE;
 class UserPreferenceController extends AbstractApiController
 {
 
-    public function __construct(private UserPreferenceService $userPreferenceService)
-    {
-    }
+    public function __construct(private UserPreferenceService $userPreferenceService) {}
 
     /**
      * Display a listing of the resource.
@@ -35,7 +33,7 @@ class UserPreferenceController extends AbstractApiController
     {
         $userId = auth()->user()->id;
         $response = $this->userPreferenceService->create($request->validated(), $userId);
-       // dispatch(new FetchUserFeedJob($userId));
+        // dispatch(new FetchUserFeedJob($userId));
 
         return $this->apiSuccessResponse($response, RESPONSE::HTTP_CREATED);
     }
@@ -56,7 +54,8 @@ class UserPreferenceController extends AbstractApiController
      */
     public function update(UpdateUserPreferenceRequest $request, UserPreference $userPreference)
     {
-        $response = $this->userPreferenceService->update($request->validated(), $userPreference);
+        $userId = auth()->user()->id;
+        $response = $this->userPreferenceService->update($request->validated(), $userPreference, $userId);
 
         return $this->apiSuccessResponse($response, RESPONSE::HTTP_CREATED);
     }
@@ -71,12 +70,13 @@ class UserPreferenceController extends AbstractApiController
         return $this->apiSuccessResponse($response, RESPONSE::HTTP_NO_CONTENT);
     }
 
-     /**
+    /**
      * get preference by news source
      */
     public function getPreferenceBySource(string $newsSource)
     {
-        $response = $this->userPreferenceService->getPreferenceBySource($newsSource);
+        $userId = auth()->user()->id;
+        $response = $this->userPreferenceService->getPreferenceBySource($newsSource, $userId);
 
         return $this->apiSuccessResponse($response, RESPONSE::HTTP_OK);
     }

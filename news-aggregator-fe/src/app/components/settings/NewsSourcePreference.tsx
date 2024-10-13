@@ -10,6 +10,7 @@ import {
   Table,
 } from "react-bootstrap";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
+import { isNull } from "lodash";
 import { yupResolver } from "@hookform/resolvers/yup";
 import SubmitButton from "../common/form/SubmitButton";
 import { InputField } from "../common/form/InputField";
@@ -42,25 +43,12 @@ export const NewsSourcePreference = () => {
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [checkedCategories, setCheckedCategories] = useState<string[]>([]);
   const [prefList, setPrefList] = useState<FeedPreference[]>([]);
-  const [newsSource, setNewsSource] = useState<string>("");
 
   useEffect(() => {
     getFeedPreferance().then((res) => {
-      // console.log("preflist", res?.data);
       setPrefList(res?.data?.data);
     });
   }, []);
-
-  useEffect(() => {
-    newsSource.length > 0 &&
-      getFeedPreferanceByNewsSource(newsSource).then((userPreference) => {
-        const userCheckedCategories = userPreference?.data?.data?.metadata
-          ?.categories as string[];
-        let updatedList = [...checkedCategories];
-        updatedList.splice(0, updatedList.length, ...userCheckedCategories);
-        setCheckedCategories(updatedList);
-      });
-  }, [newsSource]);
 
   const reactHookFormMethods = useForm<NewsSourceFormFields>({
     resolver: yupResolver(NewsSourceSchema),
@@ -104,6 +92,7 @@ export const NewsSourcePreference = () => {
   const [categories, setCategories] = useState<CategoryType[]>([]);
 
   const selectOnNewsSourceChange = async (source: string) => {
+    setCheckedCategories([]);
     const categoriesResponse = await getNewsCategoriesBySource(source);
     const sourceCategories = categoriesResponse?.data?.data?.map(
       (category: string) => {
@@ -114,7 +103,23 @@ export const NewsSourcePreference = () => {
       }
     );
     setCategories(() => sourceCategories);
-    setNewsSource(source);
+
+    getFeedPreferanceByNewsSource(source).then((userPreference) => {
+      const preferenceMetaData = userPreference.data.data;
+      if (
+        !isNull(preferenceMetaData) &&
+        !isNull(preferenceMetaData.metadata?.categories)
+      ) {
+        const userCheckedCategories = preferenceMetaData.metadata
+          ?.categories as string[];
+        let updatedList = [...checkedCategories];
+        if (userCheckedCategories.length > 0) {
+          updatedList.splice(0, updatedList.length, ...userCheckedCategories);
+          setCheckedCategories(updatedList);
+        }
+      }
+    });
+    
   };
 
   const handleSearchPreferenceList = (preference: FeedPreference) => {
@@ -151,7 +156,6 @@ export const NewsSourcePreference = () => {
     } else {
       updatedList.splice(checkedCategories.indexOf(target.value), 1);
     }
-    console.log("updatedCheckedList", updatedList);
     setCheckedCategories(updatedList);
     setValue("categories", updatedList);
   };
@@ -197,7 +201,9 @@ export const NewsSourcePreference = () => {
                                       <Form.Check.Input
                                         type={"checkbox"}
                                         value={category.id}
-                                        checked={checkedCategories.includes(category.id)}
+                                        checked={checkedCategories.includes(
+                                          category.id
+                                        )}
                                         onChange={handleFeature}
                                       />
                                       <Form.Check.Label className={`ft-13`}>
@@ -231,6 +237,7 @@ export const NewsSourcePreference = () => {
                                 <Row
                                   key={index}
                                   className="mb-1"
+                                  // eslint-disable-next-line react/jsx-no-duplicate-props
                                   key={field.id}
                                 >
                                   <Col md="6">
