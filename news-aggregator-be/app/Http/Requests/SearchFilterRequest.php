@@ -23,6 +23,7 @@ class SearchFilterRequest extends FormRequest
     {
         return [
             'q' => 'sometimes|required|string',
+            'page'=> 'sometimes|required|string',
             'startDate' => 'sometimes|required|string',
             'endDate' => 'sometimes|required|string',
             'source' => 'sometimes|required|string',

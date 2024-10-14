@@ -76,16 +76,16 @@ export const NewsSourcePreference = () => {
 
   const sourceNameList = [
     {
-      id: "news_api_org",
-      name: "News Api Org",
-    },
-    {
       id: "nytimes_api",
       name: "Nytime Api",
     },
     {
       id: "guardian_api",
       name: "Gurdian Api",
+    },
+    {
+      id: "news_api_org",
+      name: "News Api Org",
     },
   ];
 
@@ -119,7 +119,6 @@ export const NewsSourcePreference = () => {
         }
       }
     });
-    
   };
 
   const handleSearchPreferenceList = (preference: FeedPreference) => {

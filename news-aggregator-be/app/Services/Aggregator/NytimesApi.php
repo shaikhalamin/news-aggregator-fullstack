@@ -25,8 +25,14 @@ class NytimesApi implements NewsApiInterface
         $filterParams = [];
         $fqUrl = '';
 
+        $filterParams['page'] = 0;
+
         if (!empty($params['q'])) {
             $filterParams['q'] = $params['q'];
+        }
+
+        if (!empty($params['page'])) {
+            $filterParams['page'] = intval($params['page']);
         }
 
         if (!empty($params['startDate'])) {
@@ -63,7 +69,7 @@ class NytimesApi implements NewsApiInterface
         Log::info('Fetching [NytimesApi]: all api with data started ===> : ');
         try {
             $httpQuery = [
-                'page' => 1,
+                // 'page' => 0,
                 'api-key' => $this->sourceConfig['api_key'],
                 ...$this->format($params)
             ];
@@ -144,8 +150,14 @@ class NytimesApi implements NewsApiInterface
     public function transformArray(mixed $responseData)
     {
         $responseList = [];
+        $metaData = [];
 
         if (!empty($responseData) && !empty($responseData['response']['docs'])) {
+
+            $metaData['total'] = $responseData['response']['meta']['hits'];
+            $metaData['page'] = $responseData['response']['meta']['offset'] == 0 ? 0 : ($responseData['response']['meta']['offset'] / 10);
+            $metaData['perPage'] = 10;
+            $metaData['pageToIterate'] = ceil(($metaData['total'] / $metaData['perPage']) - $metaData['page']);
 
             foreach ($responseData['response']['docs'] as $article) {
                 $payload = self::transform($article, false, null);
@@ -153,6 +165,6 @@ class NytimesApi implements NewsApiInterface
             }
         }
 
-        return $responseList;
+        return ['meta' => $metaData, 'result' => $responseList];
     }
 }

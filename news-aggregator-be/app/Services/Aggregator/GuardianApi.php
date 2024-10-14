@@ -17,14 +17,20 @@ class GuardianApi implements NewsApiInterface
         $this->sourceConfig = config('news_agrregator.sources' . '.' . AggregatorType::GURDIAN_API);
     }
 
-   // https://content.guardianapis.com/search?section=sport&author=John%20Doe&author=Jane%20Smith&api-key=YOUR_API_KEY
+    // https://content.guardianapis.com/search?section=sport&author=John%20Doe&author=Jane%20Smith&api-key=YOUR_API_KEY
 
-   //https://content.guardianapis.com/search?section=sport,culture&author=John%20Doe&api-key=YOUR_API_KEY
+    //https://content.guardianapis.com/search?section=sport,culture&author=John%20Doe&api-key=YOUR_API_KEY
 
 
     public function format(array $params = [])
     {
         $filterParams = [];
+
+        $filterParams['page'] = 1;
+
+        if (!empty($params['page'])) {
+            $filterParams['page'] = intval($params['page']);
+        }
 
         if (!empty($params['q'])) {
             $filterParams['q'] = $params['q'];
@@ -54,7 +60,7 @@ class GuardianApi implements NewsApiInterface
         Log::info('[GuardianApi]: all api call started  ===> : ');
         try {
             $httpQuery = [
-                'page' => 1,
+                // 'page' => 1,
                 'page-size' => 200,
                 'show-fields' => 'body,thumbnail,byline,publication,shortUrl,lastModified',
                 'api-key' => $this->sourceConfig['api_key'],
@@ -132,15 +138,21 @@ class GuardianApi implements NewsApiInterface
     public function transformArray(mixed $responseData)
     {
         $responseList = [];
+        $metaData = [];
 
         if (!empty($responseData) && !empty($responseData['response']['results'])) {
 
+            $metaData['total'] = $responseData['response']['total'];
+            $metaData['page'] = $responseData['response']['currentPage'];
+            $metaData['perPage'] = $responseData['response']['pageSize'];
+            $metaData['pageToIterate'] = ceil(($metaData['total'] / $metaData['perPage']) - $metaData['page']);
+
             foreach ($responseData['response']['results'] as $article) {
                 $payload = self::transform($article, false, null);
-                array_push($responseList,$payload);
+                array_push($responseList, $payload);
             }
         }
 
-        return $responseList;
+        return ['meta' => $metaData, 'result' => $responseList];
     }
 }

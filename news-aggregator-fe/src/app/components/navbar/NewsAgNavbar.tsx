@@ -11,7 +11,19 @@ import ProfileNavItems from "./ProfileNavItems";
 
 const NewsAgNavbar = () => {
   const [buttonRef, setButtonRef] = useState<number | string>("");
-  const session = getLocalSession();
+  //const session = getLocalSession();
+
+
+  const [session, setSession] = useState();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const value = getLocalSession();
+      setSession(value);
+    }
+  }, []);
+
+
 
   return (
     <Navbar

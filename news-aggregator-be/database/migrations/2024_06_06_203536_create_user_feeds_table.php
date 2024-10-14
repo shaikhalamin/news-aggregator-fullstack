@@ -20,7 +20,7 @@ return new class extends Migration
             $table->longText('content_html')->nullable();
             $table->text('image_url')->nullable();
             $table->string('author')->nullable();
-            $table->string('news_url')->nullable();
+            $table->string('news_url')->unique()->nullable();
             $table->string('news_api_url')->nullable();
             $table->string('source');
             $table->string('response_source');

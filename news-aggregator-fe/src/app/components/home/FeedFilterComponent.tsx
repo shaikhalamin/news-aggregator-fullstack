@@ -46,16 +46,16 @@ export const FeedFilterComponent: React.FC<FeedFilterProps> = ({
 
   const sourceNameList = [
     {
-      id: "news_api_org",
-      name: "News Api Org",
-    },
-    {
       id: "guardian_api",
       name: "Gurdian Api",
     },
     {
       id: "nytimes_api",
       name: "Nytime Api",
+    },
+    {
+      id: "news_api_org",
+      name: "News Api Org",
     },
   ];
 

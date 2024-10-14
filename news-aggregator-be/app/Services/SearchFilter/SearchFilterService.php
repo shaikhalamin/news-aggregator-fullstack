@@ -24,7 +24,9 @@ class SearchFilterService
             $sourceFactory = NewsApiFactory::create($source);
             $fetchAll = $sourceFactory->all($params);
 
-           // dd($fetchAll);
+            //return $fetchAll;
+
+            // dd($fetchAll);
             $response = $sourceFactory->transformArray($fetchAll);
             return $response;
         }
