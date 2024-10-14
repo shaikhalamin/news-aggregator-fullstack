@@ -8,7 +8,7 @@ return [
             'base_uri' => 'https://newsapi.org/v2',
             'all' => 'everything',
             'headlines' => 'top-headlines',
-            'fetch_headline' => true,
+            'fetch_headline' => false,
             'categories' => [
                 "business",
                 "entertainment",

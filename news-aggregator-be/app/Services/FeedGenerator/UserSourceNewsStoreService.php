@@ -13,12 +13,15 @@ class UserSourceNewsStoreService
     {
         Log::info('[UserSourceNewsStoreService]: processing source preference  ===> : ' . $preference);
         $sourceConfig = config('news_agrregator.sources' . '.' . $preference);
-        $sourceFactory = NewsApiFactory::create($preference);
+
+        // News source factory instance to fetch news from news source
+        $newsSourceFactory = NewsApiFactory::create($preference);
         $newsSources = $sourceConfig['news_sources'];
 
         $headlineFetchAble = $sourceConfig['fetch_headline'];
 
-        $newsStoreFactory = ResponseStoreFactory::create($preference);
+        // Factory Instance to store news dynamically
+        $newsResponseStoreFactory = ResponseStoreFactory::create($preference);
 
         foreach ($newsSources as $newsSource) {
             $params = ['sources' => $newsSource];
@@ -26,14 +29,14 @@ class UserSourceNewsStoreService
 
             if ($headlineFetchAble) {
                 //fetching and saving headlines
-                $fetchHeadLine = $sourceFactory->headlines($params);
-                $newsStoreFactory->store($userId, $fetchHeadLine, $headlineFetchAble);
+                $newsFetchHeadLineResponseData = $newsSourceFactory->headlines($params);
+                $newsResponseStoreFactory->store($userId, $newsFetchHeadLineResponseData, $headlineFetchAble);
             }
             // //fetching and saving all 
-            $fetchAll = $sourceFactory->all($params);
+            $newsFetchAllResponseData = $newsSourceFactory->all($params);
 
-            //dd($fetchAll);
-            $newsStoreFactory->store($userId, $fetchAll, false);
+            // Storing data to database
+            $newsResponseStoreFactory->store($userId, $newsFetchAllResponseData, false);
         }
     }
 }

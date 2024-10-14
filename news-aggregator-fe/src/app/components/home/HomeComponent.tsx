@@ -74,7 +74,7 @@ const HomeComponent = () => {
               role="status"
               aria-hidden="true"
             />{" "}
-            Loading....
+            Fetching....
           </Col>
         </Row>
       )}

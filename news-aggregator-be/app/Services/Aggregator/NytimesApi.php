@@ -23,23 +23,37 @@ class NytimesApi implements NewsApiInterface
     public function format(array $params = [])
     {
         $filterParams = [];
+        $fqUrl = '';
 
         if (!empty($params['q'])) {
             $filterParams['q'] = $params['q'];
         }
 
         if (!empty($params['startDate'])) {
-            $filterParams['begin_date'] = $params['startDate'];
+
+            $startDate = Carbon::parse($params['startDate']);
+            $filterParams['begin_date'] = $startDate->format('Ymd');
         }
 
         if (!empty($params['endDate'])) {
-            $filterParams['end_date'] = $params['endDate'];
+            $endDate = Carbon::parse($params['endDate']);
+            $filterParams['end_date'] = $endDate->format('Ymd');
         }
 
-        //fq=section_name:("sports") AND byline:("By Clifton Brown")
+        if (!empty($params['category'])) {
+            $fqUrl .= 'section_name:("' . $params['category'] . '")';
+            $filterParams['fq'] = 'section_name:("' . $params['category'] . '")';
+        }
 
-        //$fq = 'section_name:("' . $category . '") AND byline:("' . $author . '")';
-        // $encoded_fq = urlencode($fq);
+        if (!empty($params['author'])) {
+            if (!empty($params['category'])) {
+                $fqUrl = 'section_name:("' . $params['category'] . '") AND byline:("' . urlencode($params['author']) . '")';
+                $filterParams['fq'] = $fqUrl;
+            } else {
+                $fqUrl .= 'byline:("' . urlencode($params['author']) . '")';
+                $filterParams['fq'] = $fqUrl;
+            }
+        }
 
         return $filterParams;
     }
@@ -135,7 +149,7 @@ class NytimesApi implements NewsApiInterface
 
             foreach ($responseData['response']['docs'] as $article) {
                 $payload = self::transform($article, false, null);
-                array_push($responseList,$payload);
+                array_push($responseList, $payload);
             }
         }
 

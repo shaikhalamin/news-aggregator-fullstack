@@ -1,7 +1,7 @@
 import * as yup from "yup";
 
 export type FeedFilterFormFields = {
-  q?: string;
+  q: string;
   startDate?: string;
   endDate?: string;
   source?: string;
@@ -10,7 +10,7 @@ export type FeedFilterFormFields = {
 
 export const FeedFilterSchema = yup
   .object({
-    q: yup.string().optional().nullable(),
+    q: yup.string().required('Please enter any keyword').nullable(),
     startDate: yup.string().optional().nullable(),
     endDate: yup.string().optional().nullable(),
     source: yup.string().optional().nullable(),

@@ -27,6 +27,7 @@ class SearchFilterRequest extends FormRequest
             'endDate' => 'sometimes|required|string',
             'source' => 'sometimes|required|string',
             'category' => 'sometimes|required|string',
+            'author' => 'sometimes|required|string',
         ];
     }
 }

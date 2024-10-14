@@ -76,15 +76,22 @@ export const FeedFilterComponent: React.FC<FeedFilterProps> = ({
   const onSubmit = async (data: FeedFilterFormFields) => {
     const filterObject = formatFilterObject(data);
     const { filterUrl, queryParams } = generateQueryFilterUrl(filterObject);
-    console.log("filterUrl", filterUrl);
 
-    if (filterUrl) {
+    if (filterUrl.length > 2) {
+      setSubmitLoading(true);
       onSearchFilter(true);
-      getSearchResult(filterUrl).then((res) => {
-        console.log("filter response : ", res?.data?.data);
-        onSearchFilter(false);
-        onSearchResult(res?.data?.data as UserFeed[]);
-      });
+      getSearchResult(filterUrl)
+        .then((res) => {
+          console.log("filter response : ", res?.data?.data);
+          onSearchFilter(false);
+          setSubmitLoading(false);
+          onSearchResult(res?.data?.data as UserFeed[]);
+        })
+        .catch((error) => {
+          setSubmitLoading(false);
+          onSearchFilter(false);
+          console.log("error : ", error);
+        });
     }
   };
 
