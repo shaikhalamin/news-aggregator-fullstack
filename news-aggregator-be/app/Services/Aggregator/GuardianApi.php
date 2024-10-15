@@ -140,7 +140,7 @@ class GuardianApi implements NewsApiInterface
                 ...$this->format($params)
             ];
             $allUrl = $this->sourceConfig['base_uri'] . '/' . $this->sourceConfig['all'];
-            $response = Http::retry(3, 200)->withHeaders([
+            $response = Http::retry(3, 15000)->withHeaders([
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
             ])->get($allUrl, [...$httpQuery]);
@@ -218,7 +218,7 @@ class GuardianApi implements NewsApiInterface
             $metaData['total'] = $responseData['response']['total'];
             $metaData['page'] = $responseData['response']['currentPage'];
             $metaData['perPage'] = $responseData['response']['pageSize'];
-            $metaData['pageToIterate'] = ceil(($metaData['total'] / $metaData['perPage']) - $metaData['page']);
+            $metaData['pageToIterate'] = intval(floor(($metaData['total'] / $metaData['perPage']) - $metaData['page']));
 
             foreach ($responseData['response']['results'] as $article) {
                 $payload = self::transform($article, false, $userId);

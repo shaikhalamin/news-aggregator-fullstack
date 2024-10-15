@@ -19,7 +19,9 @@ export const populateServerValidationError = <T extends FieldValues>(
     }
 
     const customMessage = error.response?.data?.message;
-    if (!errors && customMessage) {
+    console.log("customMessage", customMessage);
+
+    if (customMessage) {
       onCustomError && onCustomError(customMessage);
     }
   }

@@ -3,7 +3,6 @@
 namespace App\Services\FeedGenerator;
 
 use App\Factories\NewsApiFactory;
-use App\Factories\ResponseStoreFactory;
 use App\Jobs\NewsFetchAndStoreJob;
 use App\Services\Preference\UserPreferenceService;
 use App\Services\UserFeed\UserFeedService;
@@ -23,7 +22,7 @@ class UserSourceNewsStoreService
             $newsSourceFactory = NewsApiFactory::create($newsSource);
             $userPreferenceParams = $newsSourceFactory->prepareParams($userPreferenceByNewsSource->toArray());
             foreach ($userPreferenceParams as $preferenceParam) {
-                dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam));
+                dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam))->delay(now()->addSeconds(14));
             }
         }
     }
@@ -33,8 +32,23 @@ class UserSourceNewsStoreService
         $newsSourceFactory = NewsApiFactory::create($newsSource);
         $newsFetchAllResponseData = $newsSourceFactory->all($params);
         $transformedResult = $newsSourceFactory->transformArray($newsFetchAllResponseData, $userId);
+        $this->store($transformedResult['result']);
 
-        if ($transformedResult['meta']['pageToIterate'] > 0) {
+        // we need to set  break point to stop recalling 
+        if (!empty($transformedResult['meta']) && !empty($transformedResult['meta']['pageToIterate']) && $transformedResult['meta']['pageToIterate'] > 0) {
+
+            Log::info('Processing [UserSourceNewsStoreService->fetchNewsAndStore]: metadata  ===> : ', ['source' => $newsSource, 'meta' => $transformedResult['meta']]);
+
+            $page = $transformedResult['meta']['page'];
+            $total = $transformedResult['meta']['total'];
+            $perPage = $transformedResult['meta']['perPage'];
+
+            $remainingPage = intval(floor($total / $perPage));
+            Log::info('Checking page and remaining val  ===> : ', [$page, $remainingPage]);
+            if ($page === ($remainingPage - 1)) {
+                return;
+            }
+
             $indexToStart = $transformedResult['meta']['page'] + 1;
             $numberOfPages = $transformedResult['meta']['pageToIterate'];
             for ($i = $indexToStart; $i < $numberOfPages; $i++) {
@@ -42,11 +56,9 @@ class UserSourceNewsStoreService
                     ...$params,
                     'page' => $i
                 ];
-                dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam));
+                dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam))->delay(now()->addSeconds(14));
             }
         }
-
-        $this->store($transformedResult['result']);
     }
 
 
@@ -54,7 +66,11 @@ class UserSourceNewsStoreService
     {
         if (!empty($responseData)) {
             foreach ($responseData as $newsFeed) {
-                $this->userFeedService->create($newsFeed);
+                try {
+                    $this->userFeedService->create($newsFeed);
+                } catch (Throwable $th) {
+                    Log::info('Saving data error of type ' . $newsFeed['source'], ['error' => $th->getMessage()]);
+                }
             }
         }
     }

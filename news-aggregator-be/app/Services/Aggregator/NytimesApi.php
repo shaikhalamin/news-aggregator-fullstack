@@ -145,7 +145,7 @@ class NytimesApi implements NewsApiInterface
                 ...$this->format($params)
             ];
             $allUrl = $this->sourceConfig['base_uri'] . '/' . $this->sourceConfig['all'];
-            $response = Http::retry(3, 200)->withHeaders([
+            $response = Http::retry(3, 15000)->withHeaders([
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
             ])->get($allUrl, [...$httpQuery]);
@@ -228,7 +228,7 @@ class NytimesApi implements NewsApiInterface
             $metaData['total'] = $responseData['response']['meta']['hits'];
             $metaData['page'] = $responseData['response']['meta']['offset'] == 0 ? 0 : ($responseData['response']['meta']['offset'] / 10);
             $metaData['perPage'] = 10;
-            $metaData['pageToIterate'] = ceil(($metaData['total'] / $metaData['perPage']) - $metaData['page']);
+            $metaData['pageToIterate'] = intval(floor(($metaData['total'] / $metaData['perPage']) - $metaData['page']));
 
             foreach ($responseData['response']['docs'] as $article) {
                 $payload = self::transform($article, false, $userId);

@@ -24,7 +24,17 @@ class NewsFetchAndStoreJob implements ShouldQueue
      */
     public function handle(UserSourceNewsStoreService $userSourceNewsStoreService): void
     {
-        Log::info('Processing [NewsFetchAndStoreJob]: data  ===> : ' . $this->userId);
+        Log::info('Processing [NewsFetchAndStoreJob]: data  ===> : ', ['source' => $this->newsSource, 'params' => $this->params]);
         $userSourceNewsStoreService->fetchNewsAndStore($this->userId, $this->newsSource, $this->params);
+    }
+
+    public function failed(\Exception $exception)
+    {
+        // Log the failure reason
+        Log::error('Job failed of NewsFetchAndStoreJob', [
+            'job' => self::class,
+            'exception_message' => $exception->getMessage(),
+            'exception_trace' => $exception->getTraceAsString(),
+        ]);
     }
 }

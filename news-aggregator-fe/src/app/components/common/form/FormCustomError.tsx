@@ -19,8 +19,11 @@ const FormCustomError: React.FC<{
 
   return (
     <Row className="py-3">
-      <Col md={{ span: 6, offset: 3 }}></Col>
-      {<FormText className="text-danger">{message}</FormText>}
+      <Col md={{ span: 10, offset: 1 }}>
+        <div className="alert alert-danger text-center" role="alert">
+          {message}
+        </div>
+      </Col>
     </Row>
   );
 };

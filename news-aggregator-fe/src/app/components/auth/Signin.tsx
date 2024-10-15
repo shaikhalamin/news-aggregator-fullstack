@@ -39,6 +39,7 @@ const Signin = () => {
   const errorMessage = getErrorMessage(errors);
 
   const onCustomError = (message: string) => {
+    //alert(message)
     setCustomServerError(message);
   };
 
@@ -51,12 +52,14 @@ const Signin = () => {
       setSubmitLoading(true);
       const signIn = await login(singinPayload);
       setSubmitLoading(false);
+     
       if (signIn?.status === 200) {
         reset();
         setUserSession(signIn?.data?.data);
         window.location.href = `${FE_BASE}/` as string;
       }
     } catch (error: any) {
+      //console.log("Login error", error)
       setSubmitLoading(false);
       populateServerValidationError<SignInFormFields>(
         error,
