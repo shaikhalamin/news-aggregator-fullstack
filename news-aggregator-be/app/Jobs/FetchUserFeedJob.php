@@ -24,7 +24,7 @@ class FetchUserFeedJob implements ShouldQueue
      */
     public function handle(NewsFeedGeneratorService $newsFeedGeneratorService): void
     {
-        Log::info('Processing [FetchUserFeedJob]: data  ===> : ' . $this->userId);
+        //Log::info('Processing [FetchUserFeedJob]: data  ===> : ' . $this->userId);
         $newsFeedGeneratorService->generateNewsFeed($this->userId);
     }
 }

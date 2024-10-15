@@ -17,8 +17,10 @@ class NytimesApi implements NewsApiInterface
         $this->sourceConfig = config('news_agrregator.sources' . '.' . AggregatorType::NYTIMES_API);
     }
 
-    //https://api.nytimes.com/svc/search/v2/articlesearch.json?q=&fq=section_name:("Category Name") AND byline:("Author Name")&api-key=your_api_key
-
+    public function apiDelay()
+    {
+        return 14;
+    }
 
     public function prepareParams(array $userPreference = [])
     {
@@ -30,6 +32,7 @@ class NytimesApi implements NewsApiInterface
 
             $params = [
                 'page' => 0,
+                'callInit' => true,
                 'startDate' => $oneYearAgoDate,
                 'endDate' => $currentDate,
             ];
@@ -81,6 +84,7 @@ class NytimesApi implements NewsApiInterface
 
             $params = [
                 'page' => 0,
+                'callInit' => true,
                 'startDate' => $oneYearAgoDate,
                 'endDate' => $currentDate,
             ];

@@ -39,7 +39,7 @@ const NewsAgNavbar = () => {
           role="general-navbar-brand-role"
           className={`${styles.ft18} ${styles.ftBold}`}
         >
-          <span className="text-warning">News Aggregator</span>
+          <span className="text-warning">Demo App</span>
         </Navbar.Brand>
 
         <Navbar.Toggle

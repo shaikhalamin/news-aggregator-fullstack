@@ -29,7 +29,7 @@ docker exec -it backend-container php artisan db:seed
 
 docker exec -it backend-container php artisan key:generate
 echo "Please click http://localhost:7890 to visit the app"
-docker exec -it backend-container php artisan queue:work
+# docker exec -it backend-container php artisan queue:work
 
 
 # Fetch news feed

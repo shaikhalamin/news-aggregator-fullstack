@@ -37,21 +37,20 @@ services:
     networks:
       - news-network
 
-  # supervisor:
-  #   build:
-  #     context: ./news-aggregator-be
-  #     dockerfile: Dockerfile
-  #   container_name: laravel-supervisor
-  #   command: supervisord -c /etc/supervisor/supervisord.conf
-  #   volumes:
-  #     - ./news-aggregator-be:/var/www/html:rw
-  #     - ./supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
-  #   depends_on:
-  #     - backend-service
-  #   environment:
-  #     - TZ=Asia/Dhaka
-  #   networks:
-  #     - news-network
+  supervisor:
+    build:
+      context: ./supervisor
+      dockerfile: Dockerfile
+    container_name: laravel-supervisor
+    volumes:
+      - ./news-aggregator-be:/var/www/html:rw
+      # - ./supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
+    depends_on:
+      - backend-service
+    environment:
+      - TZ=Asia/Dhaka
+    networks:
+      - news-network
 
   frontend-service:
     build:

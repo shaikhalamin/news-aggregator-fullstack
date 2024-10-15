@@ -17,10 +17,10 @@ class GuardianApi implements NewsApiInterface
         $this->sourceConfig = config('news_agrregator.sources' . '.' . AggregatorType::GURDIAN_API);
     }
 
-    // https://content.guardianapis.com/search?section=sport&author=John%20Doe&author=Jane%20Smith&api-key=YOUR_API_KEY
-
-    //https://content.guardianapis.com/search?section=sport,culture&author=John%20Doe&api-key=YOUR_API_KEY
-
+    public function apiDelay()
+    {
+        return 5;
+    }
 
     public function prepareParams(array $userPreference = [])
     {
@@ -32,6 +32,7 @@ class GuardianApi implements NewsApiInterface
 
             $params = [
                 'page' => 1,
+                'callInit' => true,
                 'startDate' => $oneYearAgoDate,
                 'endDate' => $currentDate,
             ];
@@ -83,6 +84,7 @@ class GuardianApi implements NewsApiInterface
 
             $params = [
                 'page' => 1,
+                'callInit' => true,
                 'startDate' => $oneYearAgoDate,
                 'endDate' => $currentDate,
             ];

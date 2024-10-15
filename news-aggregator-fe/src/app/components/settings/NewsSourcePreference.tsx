@@ -230,7 +230,7 @@ export const NewsSourcePreference = () => {
                         </Row>
 
                         <Row className="py-2">
-                          <Col md="12">
+                          <Col md={8}>
                             {fields.map((field, index) => {
                               return (
                                 <Row

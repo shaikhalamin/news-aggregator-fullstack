@@ -4,6 +4,7 @@ namespace App\Services\FeedGenerator;
 
 use App\Factories\NewsApiFactory;
 use App\Jobs\NewsFetchAndStoreJob;
+use App\Services\Aggregator\AggregatorType;
 use App\Services\Preference\UserPreferenceService;
 use App\Services\UserFeed\UserFeedService;
 use Illuminate\Support\Facades\Log;
@@ -11,6 +12,11 @@ use Throwable;
 
 class UserSourceNewsStoreService
 {
+    private $queueNames = [
+        AggregatorType::GURDIAN_API => ['guardian_1', 'guardian_2', 'guardian_3'],
+        AggregatorType::NYTIMES_API => ['nytimes_1', 'nytimes_2', 'nytimes_3'],
+    ];
+
     public function __construct(private UserPreferenceService $userPreferenceService, private UserFeedService $userFeedService) {}
 
     public function prepareNewsSourcePreferences(int $userId, string $newsSource)
@@ -21,8 +27,12 @@ class UserSourceNewsStoreService
         if (!is_null($userPreferenceByNewsSource)) {
             $newsSourceFactory = NewsApiFactory::create($newsSource);
             $userPreferenceParams = $newsSourceFactory->prepareParams($userPreferenceByNewsSource->toArray());
+            $dispatchingQueues = $this->queueNames[$newsSource];
             foreach ($userPreferenceParams as $preferenceParam) {
-                dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam))->delay(now()->addSeconds(14));
+                $randomQueue = $dispatchingQueues[mt_rand(0, 2)];
+                dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam))
+                    ->onQueue($randomQueue)
+                    ->delay(now()->addSeconds($newsSourceFactory->apiDelay()));
             }
         }
     }
@@ -34,29 +44,28 @@ class UserSourceNewsStoreService
         $transformedResult = $newsSourceFactory->transformArray($newsFetchAllResponseData, $userId);
         $this->store($transformedResult['result']);
 
-        // we need to set  break point to stop recalling 
-        if (!empty($transformedResult['meta']) && !empty($transformedResult['meta']['pageToIterate']) && $transformedResult['meta']['pageToIterate'] > 0) {
+        $initCall = $params['callInit'];
 
+        if ($initCall === true && !empty($transformedResult['meta']) && !empty($transformedResult['meta']['pageToIterate'])) {
             Log::info('Processing [UserSourceNewsStoreService->fetchNewsAndStore]: metadata  ===> : ', ['source' => $newsSource, 'meta' => $transformedResult['meta']]);
-
-            $page = $transformedResult['meta']['page'];
-            $total = $transformedResult['meta']['total'];
-            $perPage = $transformedResult['meta']['perPage'];
-
-            $remainingPage = intval(floor($total / $perPage));
-            Log::info('Checking page and remaining val  ===> : ', [$page, $remainingPage]);
-            if ($page === ($remainingPage - 1)) {
-                return;
-            }
-
-            $indexToStart = $transformedResult['meta']['page'] + 1;
+            $currentPage = $transformedResult['meta']['page'];
             $numberOfPages = $transformedResult['meta']['pageToIterate'];
-            for ($i = $indexToStart; $i < $numberOfPages; $i++) {
-                $preferenceParam = [
-                    ...$params,
-                    'page' => $i
-                ];
-                dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam))->delay(now()->addSeconds(14));
+            $lengthToIterate = $numberOfPages + 1;
+
+            if ($numberOfPages > 0 && $numberOfPages > $currentPage) {
+                $dispatchingQueues = $this->queueNames[$newsSource];
+                $indexToStart = $currentPage + 1;
+                for ($i = $indexToStart; $i <= $lengthToIterate; $i++) {
+                    $preferenceParam = [
+                        ...$params,
+                        'page' => $i,
+                        'callInit' => false,
+                    ];
+                    $randomQueue = $dispatchingQueues[mt_rand(0, 2)];
+                    dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam))
+                        ->onQueue($randomQueue)
+                        ->delay(now()->addSeconds($newsSourceFactory->apiDelay()));
+                }
             }
         }
     }

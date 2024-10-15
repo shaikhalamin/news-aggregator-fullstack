@@ -26,6 +26,7 @@ const HomeComponent = () => {
     getUserFeed()
       .then((res) => {
         const responseList = res?.data?.data?.data;
+        console.log("response", res?.data)
         setFeedList(responseList);
       })
       .catch((err) => {
