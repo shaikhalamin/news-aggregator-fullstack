@@ -24,12 +24,17 @@ class UserSourceNewsStoreService
         Log::info('[UserSourceNewsStoreService]: processing source preference  ===> : ' . $newsSource);
         $userPreferenceByNewsSource = $this->userPreferenceService->getPreferenceBySource($newsSource, $userId);
 
+        // check user feed table with user id and source and category to verify already processed or not  
+
         if (!is_null($userPreferenceByNewsSource)) {
             $newsSourceFactory = NewsApiFactory::create($newsSource);
             $userPreferenceParams = $newsSourceFactory->prepareParams($userPreferenceByNewsSource->toArray());
             $dispatchingQueues = $this->queueNames[$newsSource];
             foreach ($userPreferenceParams as $preferenceParam) {
                 $randomQueue = $dispatchingQueues[mt_rand(0, 2)];
+
+
+
                 dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam))
                     ->onQueue($randomQueue)
                     ->delay(now()->addSeconds($newsSourceFactory->apiDelay()));
