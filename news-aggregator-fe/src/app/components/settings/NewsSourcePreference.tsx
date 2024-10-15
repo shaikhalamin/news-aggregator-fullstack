@@ -230,7 +230,7 @@ export const NewsSourcePreference = () => {
                         </Row>
 
                         <Row className="py-2">
-                          <Col md="10">
+                          <Col md="12">
                             {fields.map((field, index) => {
                               return (
                                 <Row
@@ -239,7 +239,7 @@ export const NewsSourcePreference = () => {
                                   // eslint-disable-next-line react/jsx-no-duplicate-props
                                   key={field.id}
                                 >
-                                  <Col md="6">
+                                  <Col md="10" sm="10">
                                     <InputField
                                       labelText="Author"
                                       inputType="text"
@@ -248,7 +248,7 @@ export const NewsSourcePreference = () => {
                                       errorMessage={errorMessage("author")}
                                     />
                                   </Col>
-                                  <Col md="2">
+                                  <Col md="2" sm="2">
                                     <div className="mt-3">
                                       <Button
                                         variant="danger"

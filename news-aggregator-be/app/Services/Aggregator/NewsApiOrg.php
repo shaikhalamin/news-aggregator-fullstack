@@ -17,6 +17,9 @@ class NewsApiOrg implements NewsApiInterface
 
     // https://newsapi.org/v2/everything?q=(technology OR science) AND ("Sophie Charara" OR "Kate Knibbs")&apiKey=YOUR_API_KEY
 
+    public function prepareParams(array $userPreference = []){
+        
+    }
 
     public function format(array $params = [])
     {
@@ -121,13 +124,13 @@ class NewsApiOrg implements NewsApiInterface
         ];
     }
 
-    public function transformArray(mixed $responseData)
+    public function transformArray(mixed $responseData, ?int $userId = null)
     {
         $responseList = [];
 
         if (!empty($responseData) && $responseData->totalResults > 0) {
             foreach ($responseData->articles as $article) {
-                $payload = self::transform($article, false, null);
+                $payload = self::transform($article, false, $userId);
                 array_push($responseList,$payload);
             }
         }

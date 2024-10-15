@@ -9,9 +9,7 @@ use Symfony\Component\HttpFoundation\Response as RESPONSE;
 
 class SearchFilterController extends AbstractApiController
 {
-    public function __construct(private SearchFilterService $searchFilterService)
-    {
-    }
+    public function __construct(private SearchFilterService $searchFilterService) {}
 
     public function getSourceCategories(string $source)
     {
@@ -22,7 +20,8 @@ class SearchFilterController extends AbstractApiController
 
     public function search(SearchFilterRequest $request)
     {
-        $response = $this->searchFilterService->filterSearch($request->validated());
+        $userId = auth()->user()->id;
+        $response = $this->searchFilterService->filterSearch($request->validated(), $userId);
         return $this->apiSuccessResponse($response, RESPONSE::HTTP_OK);
     }
 }

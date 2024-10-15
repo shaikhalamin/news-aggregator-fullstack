@@ -9,7 +9,8 @@ export const preparePreferencePayload = (data: NewsSourceFormFields) => {
   payload = {
     ...payload,
     metadata: {
-      categories: data.categories,
+      categories:
+        data?.categories && data?.categories.length ? data?.categories : [],
       authors:
         data?.authors && data?.authors.length > 0
           ? data?.authors?.map((author) => author.name)

@@ -9,17 +9,13 @@ use App\Services\Aggregator\NytimesApi as NytimesApiAggregator;
 class NytimesApi implements NewsResponseStoreInterface
 {
 
-    public function __construct(private UserFeedService $userFeedService)
-    {
-    }
+    public function __construct(private UserFeedService $userFeedService) {}
 
-    public function store(int $userId, mixed $responseData, bool $isTopStories = false)
+    public function store(array $responseData = [])
     {
-        if (!empty($responseData) && !empty($responseData['response']['docs'])) {
-
-            foreach ($responseData['response']['docs'] as $article) {
-                $payload = NytimesApiAggregator::transform($article, $isTopStories, $userId);
-                $this->userFeedService->create($payload);
+        if (!empty($responseData)) {
+            foreach ($responseData as $newsFeed) {
+                $this->userFeedService->create($newsFeed);
             }
         }
     }

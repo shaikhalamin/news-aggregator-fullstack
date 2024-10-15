@@ -14,15 +14,10 @@ class FetchUserFeedJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private int $userId;
-
     /**
      * Create a new job instance.
      */
-    public function __construct($userId)
-    {
-        $this->userId = $userId;
-    }
+    public function __construct(private int $userId) {}
 
     /**
      * Execute the job.

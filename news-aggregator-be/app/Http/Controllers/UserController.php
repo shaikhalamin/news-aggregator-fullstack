@@ -37,7 +37,7 @@ class UserController extends AbstractApiController
     {
         $response = $this->userService->create($request->validated());
 
-        dispatch(new FetchUserFeedJob($response->id));
+        //dispatch(new FetchUserFeedJob($response->id));
 
         return $this->apiSuccessResponse($response, RESPONSE::HTTP_CREATED);
     }

@@ -4,39 +4,58 @@ namespace App\Services\FeedGenerator;
 
 use App\Factories\NewsApiFactory;
 use App\Factories\ResponseStoreFactory;
+use App\Jobs\NewsFetchAndStoreJob;
+use App\Services\Preference\UserPreferenceService;
+use App\Services\UserFeed\UserFeedService;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class UserSourceNewsStoreService
 {
-    public function storeNews($userId, $preference, $preferenceType)
+    public function __construct(private UserPreferenceService $userPreferenceService, private UserFeedService $userFeedService) {}
+
+    public function prepareNewsSourcePreferences(int $userId, string $newsSource)
     {
-        Log::info('[UserSourceNewsStoreService]: processing source preference  ===> : ' . $preference);
-        $sourceConfig = config('news_agrregator.sources' . '.' . $preference);
+        Log::info('[UserSourceNewsStoreService]: processing source preference  ===> : ' . $newsSource);
+        $userPreferenceByNewsSource = $this->userPreferenceService->getPreferenceBySource($newsSource, $userId);
 
-        // News source factory instance to fetch news from news source
-        $newsSourceFactory = NewsApiFactory::create($preference);
-        $newsSources = $sourceConfig['news_sources'];
-
-        $headlineFetchAble = $sourceConfig['fetch_headline'];
-
-        // Factory Instance to store news dynamically
-        $newsResponseStoreFactory = ResponseStoreFactory::create($preference);
-
-        foreach ($newsSources as $newsSource) {
-            $params = ['sources' => $newsSource];
-            Log::info('[UserSourceNewsStoreService]: internal source news calling  ===> : ' . $newsSource);
-
-            if ($headlineFetchAble) {
-                //fetching and saving headlines
-                $newsFetchHeadLineResponseData = $newsSourceFactory->headlines($params);
-                $newsResponseStoreFactory->store($userId, $newsFetchHeadLineResponseData, $headlineFetchAble);
+        if (!is_null($userPreferenceByNewsSource)) {
+            $newsSourceFactory = NewsApiFactory::create($newsSource);
+            $userPreferenceParams = $newsSourceFactory->prepareParams($userPreferenceByNewsSource->toArray());
+            foreach ($userPreferenceParams as $preferenceParam) {
+                dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam));
             }
-            // //fetching and saving all 
-            $newsFetchAllResponseData = $newsSourceFactory->all($params);
+        }
+    }
 
-            // Storing data to database
-            $newsResponseStoreFactory->store($userId, $newsFetchAllResponseData, false);
+    public function fetchNewsAndStore(int $userId, string $newsSource, array $params = [])
+    {
+        $newsSourceFactory = NewsApiFactory::create($newsSource);
+        $newsFetchAllResponseData = $newsSourceFactory->all($params);
+        $transformedResult = $newsSourceFactory->transformArray($newsFetchAllResponseData, $userId);
+
+        if ($transformedResult['meta']['pageToIterate'] > 0) {
+            $indexToStart = $transformedResult['meta']['page'] + 1;
+            $numberOfPages = $transformedResult['meta']['pageToIterate'];
+            for ($i = $indexToStart; $i < $numberOfPages; $i++) {
+                $preferenceParam = [
+                    ...$params,
+                    'page' => $i
+                ];
+                dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam));
+            }
+        }
+
+        $this->store($transformedResult['result']);
+    }
+
+
+    public function store(array $responseData = [])
+    {
+        if (!empty($responseData)) {
+            foreach ($responseData as $newsFeed) {
+                $this->userFeedService->create($newsFeed);
+            }
         }
     }
 }

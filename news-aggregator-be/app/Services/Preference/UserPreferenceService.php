@@ -38,8 +38,6 @@ class UserPreferenceService
             $payload['authors'] = $data['metadata']['authors'];
         }
 
-        
-
         $payload['metadata'] = $payload;
 
         $payload['user_id'] = $userId;
@@ -53,7 +51,7 @@ class UserPreferenceService
         return $this->show($id)->delete();
     }
 
-    public function getPreferenceBySource(string $newsSource, int $userId)
+    public function getPreferenceBySource(string $newsSource, int $userId): UserPreference | null
     {
         return UserPreference::where(['source' => $newsSource, 'user_id' => $userId])->first();
     }

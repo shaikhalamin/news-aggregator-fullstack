@@ -4,9 +4,13 @@ namespace App\Services\SearchFilter;
 
 use App\Factories\NewsApiFactory;
 use App\Services\Aggregator\AggregatorType;
+use App\Services\Preference\UserPreferenceService;
 
 class SearchFilterService
 {
+
+    public function __construct(private UserPreferenceService $userPreferenceService) {}
+
     public function getCategoriesBySource(string $source)
     {
         $sourceConfig = config('news_agrregator.sources' . '.' . $source);
@@ -17,13 +21,18 @@ class SearchFilterService
         return $sourceConfig['categories'];
     }
 
-    public function filterSearch(array $params)
+    public function filterSearch(array $params, ?int $userId = null)
     {
         if (!empty($params['source'])) {
             $source = $params['source'];
             $sourceFactory = NewsApiFactory::create($source);
             $fetchAll = $sourceFactory->all($params);
 
+            // $userPreferenceByNewsSource = $this->userPreferenceService->getPreferenceBySource($source, $userId);
+            // $userPreferenceParams = $sourceFactory->prepareParams($userPreferenceByNewsSource->toArray());
+
+            // return $userPreferenceParams;
+            //dd($userPreferenceParams);
             //return $fetchAll;
 
             // dd($fetchAll);

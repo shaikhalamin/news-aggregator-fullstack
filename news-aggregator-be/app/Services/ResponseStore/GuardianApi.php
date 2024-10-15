@@ -9,17 +9,13 @@ use App\Services\UserFeed\UserFeedService;
 class GuardianApi implements NewsResponseStoreInterface
 {
 
-    public function __construct(private UserFeedService $userFeedService)
-    {
-    }
+    public function __construct(private UserFeedService $userFeedService) {}
 
-    public function store(int $userId, mixed $responseData, bool $isTopStories = false)
+    public function store(array $responseData = [])
     {
-        if (!empty($responseData) && !empty($responseData['response']['results'])) {
-
-            foreach ($responseData['response']['results'] as $article) {
-                $payload = GuardianApiAggregator::transform($article, $isTopStories, $userId);
-                $this->userFeedService->create($payload);
+        if (!empty($responseData)) {
+            foreach ($responseData as $newsFeed) {
+                $this->userFeedService->create($newsFeed);
             }
         }
     }

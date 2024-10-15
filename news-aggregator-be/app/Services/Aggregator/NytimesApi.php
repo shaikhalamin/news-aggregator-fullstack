@@ -20,6 +20,78 @@ class NytimesApi implements NewsApiInterface
     //https://api.nytimes.com/svc/search/v2/articlesearch.json?q=&fq=section_name:("Category Name") AND byline:("Author Name")&api-key=your_api_key
 
 
+    public function prepareParams(array $userPreference = [])
+    {
+        $preferenceParams = [];
+        $currentDate = Carbon::now()->format('Y-m-d');
+        $oneYearAgoDate = Carbon::now()->subYear()->format('Y-m-d');
+
+        if (!empty($userPreference['metadata']['categories']) || !empty($userPreference['metadata']['authors'])) {
+
+            $params = [
+                'page' => 0,
+                'startDate' => $oneYearAgoDate,
+                'endDate' => $currentDate,
+            ];
+
+            if (!empty($userPreference['metadata']['categories']) && empty($userPreference['metadata']['authors'])) {
+                $categories = $userPreference['metadata']['categories'];
+                foreach ($categories as $category) {
+                    $params = [
+                        ...$params,
+                        'category' => $category
+                    ];
+
+                    $preferenceParams[] = $params;
+                }
+            }
+
+            if (!empty($userPreference['metadata']['authors']) && empty($userPreference['metadata']['categories'])) {
+                $authors = $userPreference['metadata']['authors'];
+                foreach ($authors as $author) {
+                    $params = [
+                        ...$params,
+                        'author' => $author
+                    ];
+
+                    $preferenceParams[] = $params;
+                }
+            }
+
+            if (!empty($userPreference['metadata']['authors']) && !empty($userPreference['metadata']['categories'])) {
+                $categories = $userPreference['metadata']['categories'];
+                $authors = $userPreference['metadata']['authors'];
+                foreach ($categories as $category) {
+                    $params = [
+                        ...$params,
+                        'category' => $category
+                    ];
+
+                    foreach ($authors as $author) {
+                        $params = [
+                            ...$params,
+                            'author' => $author
+                        ];
+
+                        $preferenceParams[] = $params;
+                    }
+                }
+            }
+        } else {
+
+            $params = [
+                'page' => 0,
+                'startDate' => $oneYearAgoDate,
+                'endDate' => $currentDate,
+            ];
+
+            $preferenceParams[] = $params;
+        }
+
+        return $preferenceParams;
+    }
+
+
     public function format(array $params = [])
     {
         $filterParams = [];
@@ -36,7 +108,6 @@ class NytimesApi implements NewsApiInterface
         }
 
         if (!empty($params['startDate'])) {
-
             $startDate = Carbon::parse($params['startDate']);
             $filterParams['begin_date'] = $startDate->format('Ymd');
         }
@@ -147,7 +218,7 @@ class NytimesApi implements NewsApiInterface
         return $payload;
     }
 
-    public function transformArray(mixed $responseData)
+    public function transformArray(mixed $responseData, ?int $userId = null)
     {
         $responseList = [];
         $metaData = [];
@@ -160,7 +231,7 @@ class NytimesApi implements NewsApiInterface
             $metaData['pageToIterate'] = ceil(($metaData['total'] / $metaData['perPage']) - $metaData['page']);
 
             foreach ($responseData['response']['docs'] as $article) {
-                $payload = self::transform($article, false, null);
+                $payload = self::transform($article, false, $userId);
                 array_push($responseList, $payload);
             }
         }

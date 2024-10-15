@@ -22,6 +22,79 @@ class GuardianApi implements NewsApiInterface
     //https://content.guardianapis.com/search?section=sport,culture&author=John%20Doe&api-key=YOUR_API_KEY
 
 
+    public function prepareParams(array $userPreference = [])
+    {
+        $preferenceParams = [];
+        $currentDate = Carbon::now()->format('Y-m-d');
+        $oneYearAgoDate = Carbon::now()->subYear()->format('Y-m-d');
+
+        if (!empty($userPreference['metadata']['categories']) || !empty($userPreference['metadata']['authors'])) {
+
+            $params = [
+                'page' => 1,
+                'startDate' => $oneYearAgoDate,
+                'endDate' => $currentDate,
+            ];
+
+            if (!empty($userPreference['metadata']['categories']) && empty($userPreference['metadata']['authors'])) {
+                $categories = $userPreference['metadata']['categories'];
+                foreach ($categories as $category) {
+                    $params = [
+                        ...$params,
+                        'category' => $category
+                    ];
+
+                    $preferenceParams[] = $params;
+                }
+            }
+
+            if (!empty($userPreference['metadata']['authors']) && empty($userPreference['metadata']['categories'])) {
+                $authors = $userPreference['metadata']['authors'];
+                foreach ($authors as $author) {
+                    $params = [
+                        ...$params,
+                        'author' => $author
+                    ];
+
+                    $preferenceParams[] = $params;
+                }
+            }
+
+            if (!empty($userPreference['metadata']['authors']) && !empty($userPreference['metadata']['categories'])) {
+                $categories = $userPreference['metadata']['categories'];
+                $authors = $userPreference['metadata']['authors'];
+                foreach ($categories as $category) {
+                    $params = [
+                        ...$params,
+                        'category' => $category
+                    ];
+
+                    foreach ($authors as $author) {
+                        $params = [
+                            ...$params,
+                            'author' => $author
+                        ];
+
+                        $preferenceParams[] = $params;
+                    }
+                }
+            }
+        } else {
+
+            $params = [
+                'page' => 1,
+                'startDate' => $oneYearAgoDate,
+                'endDate' => $currentDate,
+            ];
+
+            $preferenceParams[] = $params;
+        }
+
+        return $preferenceParams;
+    }
+
+
+
     public function format(array $params = [])
     {
         $filterParams = [];
@@ -135,7 +208,7 @@ class GuardianApi implements NewsApiInterface
         ];
     }
 
-    public function transformArray(mixed $responseData)
+    public function transformArray(mixed $responseData, ?int $userId = null)
     {
         $responseList = [];
         $metaData = [];
@@ -148,7 +221,7 @@ class GuardianApi implements NewsApiInterface
             $metaData['pageToIterate'] = ceil(($metaData['total'] / $metaData['perPage']) - $metaData['page']);
 
             foreach ($responseData['response']['results'] as $article) {
-                $payload = self::transform($article, false, null);
+                $payload = self::transform($article, false, $userId);
                 array_push($responseList, $payload);
             }
         }
