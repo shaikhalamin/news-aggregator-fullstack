@@ -21,7 +21,10 @@ Step 2: cd news-aggregator-fullstack
 
 Step 3: sudo chmod +x setup.sh
 
-Step 4: ./setup.sh
+Step 4: You may change [NEWSAPI_ORG-->GURDIAN_API-->NYTIMES_API] API keys from .env.example but default key will also works from setup
+
+Step 5: ./setup.sh
+
 
 ```
 ## N:B: please be patient it will take 5-6 mins to setup docker env and project
