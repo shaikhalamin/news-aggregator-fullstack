@@ -24,8 +24,6 @@ echo "Waiting for MySQL db container ready ......\n"
 sleep 15
 echo "Migrating backend schema"
 docker exec -it backend-container php artisan migrate:fresh
-echo "Generating demo seed data"
-docker exec -it backend-container php artisan db:seed
 
 docker exec -it backend-container php artisan key:generate
 echo "Please click http://localhost:7890 to visit the app"
