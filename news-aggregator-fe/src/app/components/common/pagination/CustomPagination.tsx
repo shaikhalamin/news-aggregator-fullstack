@@ -14,9 +14,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 }) => {
   const getPaginationItems = () => {
     const items = [];
-    const maxPageDisplay = 5; 
-    const middlePages = 3; 
-    
+    const maxPageDisplay = 5;
+    const middlePages = 3;
+
     items.push(
       <Pagination.Prev
         key="prev"
@@ -48,7 +48,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     for (let i = startPage; i <= endPage; i++) {
       items.push(
         <Pagination.Item
-          key={i}
+          key={i + 99}
           onClick={() => onPageChange(i)}
           active={currentPage === i}
         >

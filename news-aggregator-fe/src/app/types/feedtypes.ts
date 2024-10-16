@@ -16,8 +16,20 @@ export type NewsFeedQueryFilters = {
 };
 
 export type FilterType = {
-  page: number,
-  per_page: number
-  
+  basic: {
+    page: number;
+    per_page: number;
+  };
+  filters?: NewsFeedQueryFilters;
 };
 
+export const FilterTypeInitialVal: FilterType = {
+  basic: { page: 1, per_page: 15 },
+  filters: {
+    q: "",
+    startDate: "",
+    endDate: "",
+    source: "",
+    category: "",
+  },
+};

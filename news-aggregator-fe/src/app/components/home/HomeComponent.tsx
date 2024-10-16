@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import SingleNewsItem from "./SingleNewsItem";
-import { FilterType } from "@/app/types/feedtypes";
+import { FilterType, FilterTypeInitialVal } from "@/app/types/feedtypes";
 import { getUserFeed } from "@/app/api/services/feed";
 import { FeedList, UserFeed } from "@/app/types/user/UserFeed";
 import {
@@ -14,7 +14,11 @@ import {
   Form,
   Button,
 } from "react-bootstrap";
-import { FeedFilterFormFields, FeedFilterSchema } from "./feedFilterHelpers";
+import {
+  FeedFilterFormFields,
+  FeedFilterSchema,
+  prepareFeedResponse,
+} from "./feedFilterHelpers";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { getErrorMessage } from "@/app/utils/auth";
@@ -24,7 +28,11 @@ import CustomDatePicker from "../common/form/CustomDatePicker";
 import SelectField from "../common/form/SelectField";
 import SubmitButton from "../common/form/SubmitButton";
 import { formatFilterObject } from "@/app/utils/filter";
-import { createFilterUrl, generateQueryFilterUrl } from "@/app/utils/api";
+import {
+  createFilterUrl,
+  formFieldsToKeyValue,
+  generateQueryFilterUrl,
+} from "@/app/utils/api";
 import CustomPagination from "../common/pagination/CustomPagination";
 
 export type BasicType = {
@@ -45,11 +53,8 @@ const HomeComponent = () => {
   const [filterClient, setFilterClient] = useState(false);
   const [active, setActive] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [clearFilter, setClearFilter] = useState<boolean>();
-  const [customFilter, setCustomFilter] = useState<FilterType>({
-    page: 1,
-    per_page: 15,
-  });
+  const [customFilter, setCustomFilter] =
+    useState<FilterType>(FilterTypeInitialVal);
 
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
 
@@ -100,16 +105,7 @@ const HomeComponent = () => {
     getUserFeed()
       .then((res) => {
         setLoading(false);
-        const responseList = res?.data?.data;
-        const feedList: FeedList = {
-          data: responseList?.data as UserFeed[],
-          meta: {
-            total: responseList?.total as number,
-            per_page: responseList?.per_page as number,
-            page: responseList?.current_page as number,
-            lastPage: responseList?.last_page as number,
-          },
-        };
+        const feedList = prepareFeedResponse(res);
         setFeedList(feedList);
       })
       .catch((err) => {
@@ -118,100 +114,81 @@ const HomeComponent = () => {
       });
   }, []);
 
-  useEffect(() => {
-    setLoading(true);
-    getUserFeed()
-      .then((res) => {
-        setLoading(false);
-        const responseList = res?.data?.data;
-        const feedList = {
-          data: responseList?.data as UserFeed[],
-          meta: {
-            total: responseList?.total as number,
-            per_page: responseList?.per_page as number,
-            page: responseList?.current_page as number,
-            lastPage: responseList?.last_page as number,
-          },
-        };
-        setFeedList(feedList as FeedList);
-      })
-      .catch((err) => {
-        setLoading(false);
-        console.log("data fetch error", err);
-      });
-  }, [clearFilter]);
-
   const onSubmit = async (data: FeedFilterFormFields) => {
     const filterObject = formatFilterObject(data);
-    const { filterUrl } = generateQueryFilterUrl(filterObject);
+    const removedFalsy = formFieldsToKeyValue(filterObject);
+    filterClient === false && setFilterClient(true);
+    setCustomFilter((prevState) => {
+      return {
+        ...prevState,
+        filters: {
+          ...removedFalsy,
+        },
+      };
+    });
 
-    if (filterUrl.length > 2) {
-      setSubmitLoading(true);
-      setLoading(true);
-      getUserFeed(filterUrl)
-        .then((res) => {
-          setLoading(false);
-          setSubmitLoading(false);
-          const responseList = res?.data?.data;
-          const feedList = {
-            data: responseList?.data as UserFeed[],
-            meta: {
-              total: responseList?.total as number,
-              per_page: responseList?.per_page as number,
-              page: responseList?.current_page as number,
-              lastPage: responseList?.last_page as number,
-            },
-          };
-          setFeedList(feedList as FeedList);
-        })
-        .catch((error) => {
-          setSubmitLoading(false);
-          setLoading(false);
-          console.log("error : ", error);
-        });
-    }
+    console.log("removedFalsy", removedFalsy);
+
+    //const { filterUrl } = generateQueryFilterUrl(filterObject);
+
+    // if (filterUrl.length > 2) {
+    //   setSubmitLoading(true);
+    //   setLoading(true);
+    //   getUserFeed(filterUrl)
+    //     .then((res) => {
+    //       setLoading(false);
+    //       setSubmitLoading(false);
+    //       const feedList = prepareFeedResponse(res);
+    //       setFeedList(feedList);
+    //     })
+    //     .catch((error) => {
+    //       setSubmitLoading(false);
+    //       setLoading(false);
+    //       console.log("error : ", error);
+    //     });
+    // }
   };
 
   useEffect(() => {
     if (filterClient) {
+      setLoading(true);
       const queryUrl = createFilterUrl(customFilter);
       getUserFeed(queryUrl)
         .then((res) => {
           setLoading(false);
-          const responseList = res?.data?.data;
-          const feedList = {
-            data: responseList?.data as UserFeed[],
-            meta: {
-              total: responseList?.total as number,
-              per_page: responseList?.per_page as number,
-              page: responseList?.current_page as number,
-              lastPage: responseList?.last_page as number,
-            },
-          };
-          setFeedList(feedList as FeedList);
+          const feedList = prepareFeedResponse(res);
+          setFeedList(feedList);
         })
         .catch((err) => {
           setLoading(false);
           console.log("data fetch error", err);
         });
     }
-  }, [filterClient, customFilter, customFilter.page, customFilter.per_page]);
+  }, [filterClient, customFilter, customFilter.basic, customFilter.filters]);
 
   const handlePagination = useCallback(
     (page: number) => {
       filterClient === false && setFilterClient(true);
       page && setActive(page);
-
-      setCustomFilter((prev) => {
+      setCustomFilter((prevState) => {
         return {
-          ...prev,
-          page: page as number,
-          
+          ...prevState,
+          basic: {
+            ...prevState.basic,
+            page: page,
+          },
         };
       });
     },
     [filterClient]
   );
+
+  const handleClearFilter = () => {
+    setFilterClient(true);
+    setActive(1);
+    setCustomFilter(() => FilterTypeInitialVal);
+    reset();
+  };
 
   return (
     <>
@@ -290,10 +267,7 @@ const HomeComponent = () => {
                                   <Button
                                     variant="danger"
                                     className="mt-3"
-                                    onClick={() => {
-                                      setClearFilter(true);
-                                      reset();
-                                    }}
+                                    onClick={() => handleClearFilter()}
                                   >
                                     Clear
                                   </Button>
@@ -326,13 +300,18 @@ const HomeComponent = () => {
         </Row>
       )}
 
-      {loading == false &&
-        feedList.data.length > 0 &&
-        feedList.data.map((feed, index) => {
-          return <SingleNewsItem feed={feed} key={index as number} />;
-        })}
+      {loading == false && feedList.data.length > 0 && (
+        <div style={{
+          minHeight: '400px', 
+          position: 'relative',
+        }}>
+          {feedList.data.map((feed, index) => {
+            return <SingleNewsItem feed={feed} key={index as number} />;
+          })}
+        </div>
+      )}
 
-      {feedList.data.length > 0 && (
+      {loading == false && feedList.data.length > 0 && (
         <>
           <hr className="mt-3" />
           <CustomPagination

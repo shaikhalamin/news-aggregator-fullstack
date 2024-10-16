@@ -1,15 +1,23 @@
 import _ from "lodash";
-import { FilterType, KeyValueObject } from "../types/feedtypes";
+import {
+  FilterType,
+  KeyValueObject,
+  NewsFeedQueryFilters,
+} from "../types/feedtypes";
 import qs from "qs";
 
-export const removeFalsy = (malformedObject: KeyValueObject) => {
+export const removeFalsy = (
+  malformedObject: KeyValueObject | NewsFeedQueryFilters
+) => {
   return _.omitBy(malformedObject, _.isEmpty);
 };
 
 export const createFilterUrl = (filterObject: FilterType) => {
+  const queryParams = removeFalsy(filterObject.filters as NewsFeedQueryFilters);
   const query = qs.stringify(
     {
-      ...filterObject,
+      ...filterObject.basic,
+      ...queryParams,
     },
     {
       encodeValuesOnly: true,
@@ -17,6 +25,10 @@ export const createFilterUrl = (filterObject: FilterType) => {
   );
 
   return query;
+};
+
+export const formFieldsToKeyValue = (queryObject: KeyValueObject) => {
+  return removeFalsy(queryObject as KeyValueObject);
 };
 
 export const generateQueryFilterUrl = (

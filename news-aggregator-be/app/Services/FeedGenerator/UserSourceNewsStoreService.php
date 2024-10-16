@@ -46,15 +46,21 @@ class UserSourceNewsStoreService
 
     public function fetchNewsAndStore(int $userId, string $newsSource, array $params = [])
     {
+        //Log::info('Source and Category For Initial Call : ', ['category' => !empty($params['category']) ? $params['category'] : '', 'source' => $newsSource]);
         $newsSourceFactory = NewsApiFactory::create($newsSource);
         $newsFetchAllResponseData = $newsSourceFactory->all($params);
-        $transformedResult = $newsSourceFactory->transformArray($newsFetchAllResponseData, $userId);
+        $transformedResult = $newsSourceFactory->transformArray($newsFetchAllResponseData, $userId, $params);
         $this->store($transformedResult['result']);
 
         $initCall = $params['callInit'];
 
         if ($initCall === true && !empty($transformedResult['meta']) && !empty($transformedResult['meta']['pageToIterate'])) {
-            Log::info('Processing [UserSourceNewsStoreService->fetchNewsAndStore]: metadata  ===> : ', ['source' => $newsSource, 'meta' => $transformedResult['meta']]);
+            Log::info('Processing [UserSourceNewsStoreService->fetchNewsAndStore]: initial metadata remaining call  ===> : ', [
+                'source' => $newsSource,
+                'category' => !empty($params['category']) ? $params['category'] : '',
+                'meta' => $transformedResult['meta']]
+            );
+            
             $currentPage = $transformedResult['meta']['page'];
             $numberOfPages = $transformedResult['meta']['pageToIterate'];
             $lengthToIterate = $numberOfPages + 1;

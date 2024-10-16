@@ -15,7 +15,7 @@ class NewsApiOrg implements NewsApiInterface
 
     public function apiDelay()
     {
-        return now()->addSeconds(5);
+        return now()->addSeconds(15);
     }
 
     public function prepareParams(array $userPreference = [])
@@ -134,7 +134,7 @@ class NewsApiOrg implements NewsApiInterface
             'news_api_url' => null,
             'source' => AggregatorType::NEWS_API_ORG,
             'is_topstories' => $isTopStories,
-            'response_source' => $article->source ? $article->source->id : AggregatorType::NEWS_API_ORG,
+            'response_source' => AggregatorType::NEWS_API_ORG,
             'category' => null,
             'published_at' => Carbon::parse($article->publishedAt, 'UTC')->format("Y-m-d"),
             'user_id' => $userId,
@@ -147,7 +147,8 @@ class NewsApiOrg implements NewsApiInterface
         $metaData = [];
 
         if (!empty($responseData) && $responseData->totalResults > 0) {
-            $metaData['total'] = $responseData->totalResults;
+            // if total results are over 2000 per category as q item then keep only 2000 for API call issue
+            $metaData['total'] = $responseData->totalResults > 2000 ? 2000 : $responseData->totalResults;
             $metaData['page'] = intval($params['page']);
             $metaData['perPage'] = 100;
             $metaData['pageToIterate'] = intval(floor(($metaData['total'] / $metaData['perPage']) - $metaData['page']));
