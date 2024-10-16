@@ -15,6 +15,7 @@ class UserSourceNewsStoreService
     private $queueNames = [
         AggregatorType::GURDIAN_API => ['guardian_1', 'guardian_2', 'guardian_3'],
         AggregatorType::NYTIMES_API => ['nytimes_1', 'nytimes_2', 'nytimes_3'],
+        AggregatorType::NEWS_API_ORG => ['newsapi_1', 'newsapi_2', 'newsapi_3']
     ];
 
     public function __construct(private UserPreferenceService $userPreferenceService, private UserFeedService $userFeedService) {}
@@ -30,14 +31,15 @@ class UserSourceNewsStoreService
             $newsSourceFactory = NewsApiFactory::create($newsSource);
             $userPreferenceParams = $newsSourceFactory->prepareParams($userPreferenceByNewsSource->toArray());
             $dispatchingQueues = !empty($this->queueNames[$newsSource])  ? $this->queueNames[$newsSource] : ['default'];
-            foreach ($userPreferenceParams as $preferenceParam) {
-                $randomQueue = $dispatchingQueues[mt_rand(0, 2)];
 
+            if (count($userPreferenceParams) > 0) {
+                foreach ($userPreferenceParams as $preferenceParam) {
+                    $randomQueue = $dispatchingQueues[mt_rand(0, 2)];
 
-
-                dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam))
-                    ->onQueue($randomQueue)
-                    ->delay(now()->addSeconds($newsSourceFactory->apiDelay()));
+                    dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam))
+                        ->onQueue($randomQueue)
+                        ->delay($newsSourceFactory->apiDelay());
+                }
             }
         }
     }
@@ -69,7 +71,7 @@ class UserSourceNewsStoreService
                     $randomQueue = $dispatchingQueues[mt_rand(0, 2)];
                     dispatch(new NewsFetchAndStoreJob($userId, $newsSource, $preferenceParam))
                         ->onQueue($randomQueue)
-                        ->delay(now()->addSeconds($newsSourceFactory->apiDelay()));
+                        ->delay($newsSourceFactory->apiDelay());
                 }
             }
         }

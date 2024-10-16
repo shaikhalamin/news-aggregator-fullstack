@@ -11,18 +11,36 @@ use Throwable;
 class NewsApiOrg implements NewsApiInterface
 {
 
-    public function __construct(private NewsApi $newsApi)
+    public function __construct(private NewsApi $newsApi) {}
+
+    public function apiDelay()
     {
+        return now()->addSeconds(5);
     }
 
-    public function apiDelay(){
-        return 5;
-    }
+    public function prepareParams(array $userPreference = [])
+    {
+        $preferenceParams = [];
 
-    // https://newsapi.org/v2/everything?q=(technology OR science) AND ("Sophie Charara" OR "Kate Knibbs")&apiKey=YOUR_API_KEY
+        if (!empty($userPreference['metadata']['categories'])) {
 
-    public function prepareParams(array $userPreference = []){
-        
+            $params = [
+                'page' => 1,
+                'callInit' => true,
+            ];
+
+            $categories = $userPreference['metadata']['categories'];
+            foreach ($categories as $category) {
+                $params = [
+                    ...$params,
+                    'q' => $category
+                ];
+
+                $preferenceParams[] = $params;
+            }
+        }
+
+        return $preferenceParams;
     }
 
     public function format(array $params = [])
@@ -41,10 +59,6 @@ class NewsApiOrg implements NewsApiInterface
             $filterParams['to'] = $params['endDate'];
         }
 
-        if (!empty($params['sources'])) {
-            $filterParams['sources'] = $params['sources'];
-        }
-
         return $filterParams;
     }
 
@@ -52,13 +66,12 @@ class NewsApiOrg implements NewsApiInterface
     {
         Log::info('Fetching [NewsApiOrg]: all api with data started ===> : ');
         try {
-
             $q = $params['q'] ?? null;
             $sources = $params['sources'] ?? null;
             $domains  = $params['domains'] ?? null;
             $exclude_domains =  $params['exclude_domains'] ?? null;
-            $from = $params['from'] ?? null;
-            $to = $params['to'] ?? null;
+            $from = $params['startDate'] ?? null;
+            $to = $params['startDate'] ?? null;
             $language = $params['language'] ?? null;
             $sort_by = $params['sort_by'] ?? null;
             $page_size = $params['page_size'] ?? null;
@@ -78,7 +91,7 @@ class NewsApiOrg implements NewsApiInterface
                 );
         } catch (Throwable $th) {
 
-            Log::error('[GuardianApi]: all api call error  ===> : ' . $th->getMessage());
+            Log::error('[NewsApiOrg]: all api call error  ===> : ' . $th->getMessage());
             return [];
         }
     }
@@ -128,17 +141,23 @@ class NewsApiOrg implements NewsApiInterface
         ];
     }
 
-    public function transformArray(mixed $responseData, ?int $userId = null)
+    public function transformArray(mixed $responseData, ?int $userId = null, ?array $params = [])
     {
         $responseList = [];
+        $metaData = [];
 
         if (!empty($responseData) && $responseData->totalResults > 0) {
+            $metaData['total'] = $responseData->totalResults;
+            $metaData['page'] = intval($params['page']);
+            $metaData['perPage'] = 100;
+            $metaData['pageToIterate'] = intval(floor(($metaData['total'] / $metaData['perPage']) - $metaData['page']));
+
             foreach ($responseData->articles as $article) {
                 $payload = self::transform($article, false, $userId);
-                array_push($responseList,$payload);
+                array_push($responseList, $payload);
             }
         }
 
-        return $responseList;
+        return ['meta' => $metaData, 'result' => $responseList];
     }
 }

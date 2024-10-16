@@ -19,7 +19,7 @@ class NytimesApi implements NewsApiInterface
 
     public function apiDelay()
     {
-        return 14;
+        return now()->addSeconds(14);
     }
 
     public function prepareParams(array $userPreference = [])
@@ -222,7 +222,7 @@ class NytimesApi implements NewsApiInterface
         return $payload;
     }
 
-    public function transformArray(mixed $responseData, ?int $userId = null)
+    public function transformArray(mixed $responseData, ?int $userId = null, ?array $params = [])
     {
         $responseList = [];
         $metaData = [];

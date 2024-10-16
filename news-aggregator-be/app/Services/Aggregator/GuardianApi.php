@@ -19,7 +19,7 @@ class GuardianApi implements NewsApiInterface
 
     public function apiDelay()
     {
-        return 5;
+        return now()->addSeconds(5);
     }
 
     public function prepareParams(array $userPreference = [])
@@ -210,7 +210,7 @@ class GuardianApi implements NewsApiInterface
         ];
     }
 
-    public function transformArray(mixed $responseData, ?int $userId = null)
+    public function transformArray(mixed $responseData, ?int $userId = null, ?array $params = [])
     {
         $responseList = [];
         $metaData = [];
