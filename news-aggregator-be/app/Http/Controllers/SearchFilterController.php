@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SearchFilterRequest;
 use App\Services\SearchFilter\SearchFilterService;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as RESPONSE;
 
 class SearchFilterController extends AbstractApiController

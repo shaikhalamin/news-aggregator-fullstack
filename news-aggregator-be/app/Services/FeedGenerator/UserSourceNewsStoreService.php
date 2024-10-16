@@ -29,7 +29,7 @@ class UserSourceNewsStoreService
         if (!is_null($userPreferenceByNewsSource)) {
             $newsSourceFactory = NewsApiFactory::create($newsSource);
             $userPreferenceParams = $newsSourceFactory->prepareParams($userPreferenceByNewsSource->toArray());
-            $dispatchingQueues = $this->queueNames[$newsSource];
+            $dispatchingQueues = !empty($this->queueNames[$newsSource])  ? $this->queueNames[$newsSource] : ['default'];
             foreach ($userPreferenceParams as $preferenceParam) {
                 $randomQueue = $dispatchingQueues[mt_rand(0, 2)];
 
@@ -58,7 +58,7 @@ class UserSourceNewsStoreService
             $lengthToIterate = $numberOfPages + 1;
 
             if ($numberOfPages > 0 && $numberOfPages > $currentPage) {
-                $dispatchingQueues = $this->queueNames[$newsSource];
+                $dispatchingQueues = !empty($this->queueNames[$newsSource])  ? $this->queueNames[$newsSource] : ['default'];
                 $indexToStart = $currentPage + 1;
                 for ($i = $indexToStart; $i <= $lengthToIterate; $i++) {
                     $preferenceParam = [

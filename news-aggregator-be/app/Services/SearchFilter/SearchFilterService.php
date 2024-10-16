@@ -5,7 +5,6 @@ namespace App\Services\SearchFilter;
 use App\Factories\NewsApiFactory;
 use App\Services\Aggregator\AggregatorType;
 use App\Services\Preference\UserPreferenceService;
-
 class SearchFilterService
 {
 
@@ -27,15 +26,6 @@ class SearchFilterService
             $source = $params['source'];
             $sourceFactory = NewsApiFactory::create($source);
             $fetchAll = $sourceFactory->all($params);
-
-            // $userPreferenceByNewsSource = $this->userPreferenceService->getPreferenceBySource($source, $userId);
-            // $userPreferenceParams = $sourceFactory->prepareParams($userPreferenceByNewsSource->toArray());
-
-            // return $userPreferenceParams;
-            //dd($userPreferenceParams);
-            //return $fetchAll;
-
-            // dd($fetchAll);
             $response = $sourceFactory->transformArray($fetchAll);
             return $response;
         }
@@ -52,8 +42,7 @@ class SearchFilterService
             $response = $sourceFactory->transformArray($fetchAll);
             $responseList = array_merge($responseList, $response);
         }
-        //dd($responseList);
-
+        
         return $responseList;
     }
 }

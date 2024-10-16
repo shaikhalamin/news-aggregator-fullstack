@@ -29,10 +29,10 @@ Route::apiResource('users', UserController::class);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/user', [AuthController::class, 'user']);
-    Route::get('/search-filter', [SearchFilterController::class, 'search']);
+    Route::get('/search-filter/live', [SearchFilterController::class, 'search']);
     Route::get('/news-categories/{source}', [SearchFilterController::class, 'getSourceCategories']);
 
     Route::get('user-preferences/type/{source}', [UserPreferenceController::class, 'getPreferenceBySource']);
     Route::apiResource('user-preferences', UserPreferenceController::class);
-    Route::apiResource('user-feeds', UserFeedController::class);
+    Route::apiResource('user-feeds', UserFeedController::class)->only('index');
 });

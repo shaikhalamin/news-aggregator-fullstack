@@ -17,3 +17,15 @@ export type UserFeed = {
   created_at: string | null;
   updated_at: string | null;
 };
+
+
+
+export type FeedList = {
+  data: UserFeed[];
+  meta: {
+    total: number;
+    per_page: number;
+    page: number;
+    lastPage: number | null
+  };
+};

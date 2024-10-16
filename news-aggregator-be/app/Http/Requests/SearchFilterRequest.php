@@ -29,6 +29,8 @@ class SearchFilterRequest extends FormRequest
             'source' => 'sometimes|required|string',
             'category' => 'sometimes|required|string',
             'author' => 'sometimes|required|string',
+            'page' => 'sometimes|required|string',
+            'per_page' => 'sometimes|required|string',
         ];
     }
 }

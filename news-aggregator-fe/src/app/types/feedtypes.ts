@@ -16,8 +16,8 @@ export type NewsFeedQueryFilters = {
 };
 
 export type FilterType = {
-  basic: BasicType;
-  order?: KeyValueObject;
-  filters?: NewsFeedQueryFilters;
+  page: number,
+  per_page: number
+  
 };
 

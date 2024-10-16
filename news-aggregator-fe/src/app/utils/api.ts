@@ -6,12 +6,10 @@ export const removeFalsy = (malformedObject: KeyValueObject) => {
   return _.omitBy(malformedObject, _.isEmpty);
 };
 
-const createFilterUrl = (filterObject: FilterType) => {
+export const createFilterUrl = (filterObject: FilterType) => {
   const query = qs.stringify(
     {
-      ...filterObject.basic,
-      ...filterObject.order,
-      ...removeFalsy(filterObject.filters as KeyValueObject),
+      ...filterObject,
     },
     {
       encodeValuesOnly: true,
