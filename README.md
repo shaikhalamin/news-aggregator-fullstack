@@ -44,7 +44,21 @@ As News_api_org does not support category filtering directly, I have used each c
 
 ```
 
+## N:B: Please keep your news source category list small due to developer API key restrictions otherwise it will always get 429 status for data scrapping.
+
 ## After all the setup done you can browse http://localhost:7890 to see the result
+
+## How to use the system ?:
+
+```bash
+
+  1. Browse signup page to create account and then login to system.
+  2. Browse setting page and set your news source setting
+  3. Depending on the number of category selection, please wait few minutes until the data scrapped get completed by queues. 
+  4. Now start browsing homepage to see the news and you can filter on that data
+
+```
+
 ## Laravel backend will be running on http://localhost:9000
 
 
