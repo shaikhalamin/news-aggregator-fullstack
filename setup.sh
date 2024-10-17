@@ -29,6 +29,12 @@ docker exec -it backend-container php artisan key:generate
 echo "Please click http://localhost:7890 to visit the app"
 # docker exec -it backend-container php artisan queue:work
 
+# docker exec -it backend-container mkdir -p /etc/supervisor/logs
+
+# docker exec -it backend-container /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
+
+
+
 
 # Fetch news feed
 # docker exec -it backend-container php artisan newsfeed:fetch
