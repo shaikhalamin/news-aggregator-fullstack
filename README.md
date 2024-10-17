@@ -7,8 +7,8 @@
         
         1. User can sign up and sign in
         2. JWT Authentication with access token and refresh token
-        3. User can set news preference from user setting.
-        4. User can filter the news source
+        3. User can set news preference from user setting with any of these APIs ==> ['GURDIAN_API', 'NYTIMES_API', 'NEWSAPI_ORG_API']
+        4. User can filter the news source from home page by keyword, date range, category and source
        
     ```
 ## Project Run Instruction
@@ -39,11 +39,14 @@ docker exec -it backend-container php artisan migrate:fresh
 
 ## N:B: No data will be displayed until we save news source preference from user setting
 
-```bash
+# N:B: [Disclaimers] Scheduled command did not used for data scrapping for API limitations, Multiple queues used for category wise data fetching: 
 
-N:B: Due to API limitations of Nytimes_api and News_api_org, news data did not scrapped using any scheduled command.
-However data scrapped, after saving preferred news source from user setting and finalized data scrapped using multiple queue setting from supervisor.
-As News_api_org does not support category filtering directly, I have used each category as a topic in News_api_org to store news
+```bash
+1. Due to API limitations of Nytimes_api and News_api_org, news data did not scrapped using any scheduled command.
+2. However data scrapped, after saving preferred news source from user setting and finalized data scrapped using multiple queue setting from supervisor.
+3. For Gurdian API and Nytimes API last one year data will scrapped after saving any of these two category.
+3. As News_api_org does not support category filtering directly, I have used each category as a topic in News_api_org to store news
+4. For News_api_org Author Preference will not directly work for API limitations.
 
 ```
 

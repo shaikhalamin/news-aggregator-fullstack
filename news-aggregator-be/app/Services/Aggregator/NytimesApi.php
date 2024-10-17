@@ -141,7 +141,7 @@ class NytimesApi implements NewsApiInterface
 
     public function all($params = [])
     {
-        Log::info('Fetching [NytimesApi]: all api with data started ===> : ');
+        Log::info('Fetching [NytimesApi]: all api with data started ===> : ', $params);
         try {
             $httpQuery = [
                 // 'page' => 0,
@@ -195,7 +195,7 @@ class NytimesApi implements NewsApiInterface
         }
     }
 
-    public static function transform(mixed $article, bool $isTopStories = false, ?int $userId = null)
+    public static function transform(mixed $article, bool $isTopStories = false, ?int $userId = null, ?array $params = [])
     {
         $imageUrl = '';
         if (!empty($article['multimedia']) && count($article['multimedia']) > 0) {
@@ -232,7 +232,7 @@ class NytimesApi implements NewsApiInterface
             $metaData['total'] = $responseData['response']['meta']['hits'];
             $metaData['page'] = $responseData['response']['meta']['offset'] == 0 ? 0 : ($responseData['response']['meta']['offset'] / 10);
             $metaData['perPage'] = 10;
-            $metaData['pageToIterate'] = intval(floor(($metaData['total'] / $metaData['perPage']) - $metaData['page']));
+            $metaData['pageToIterate'] = intval(ceil(($metaData['total'] / $metaData['perPage']) - $metaData['page']));
 
             foreach ($responseData['response']['docs'] as $article) {
                 $payload = self::transform($article, false, $userId);

@@ -116,7 +116,16 @@ export const NewsSourcePreference = () => {
         if (userCheckedCategories.length > 0) {
           updatedList.splice(0, updatedList.length, ...userCheckedCategories);
           setCheckedCategories(updatedList);
+          setValue("categories", updatedList);
         }
+      }
+
+      if (
+        !isNull(preferenceMetaData) &&
+        !isNull(preferenceMetaData.metadata?.authors)
+      ) {
+        const defaultAuthors = preferenceMetaData.metadata?.authors;
+        setValue("authors", defaultAuthors);
       }
     });
   };

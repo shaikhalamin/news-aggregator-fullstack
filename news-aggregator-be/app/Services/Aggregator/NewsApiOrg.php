@@ -64,7 +64,7 @@ class NewsApiOrg implements NewsApiInterface
 
     public function all($params = [])
     {
-        Log::info('Fetching [NewsApiOrg]: all api with data started ===> : ');
+        Log::info('Fetching [NewsApiOrg]: all api with data started ===> : ', $params);
         try {
             $q = $params['q'] ?? null;
             $sources = $params['sources'] ?? null;
@@ -75,7 +75,7 @@ class NewsApiOrg implements NewsApiInterface
             $language = $params['language'] ?? null;
             $sort_by = $params['sort_by'] ?? null;
             $page_size = $params['page_size'] ?? null;
-            $page = $params['page'] ?? null;
+            $page = $params['page'] ?? 1;
             return $this->newsApi
                 ->getEverything(
                     $q,
@@ -121,7 +121,7 @@ class NewsApiOrg implements NewsApiInterface
         }
     }
 
-    public static function transform(mixed $article, bool $isTopStories = false, ?int $userId = null)
+    public static function transform(mixed $article, bool $isTopStories = false, ?int $userId = null, ?array $params = [])
     {
         return [
             'title' => $article->title,
@@ -135,7 +135,7 @@ class NewsApiOrg implements NewsApiInterface
             'source' => AggregatorType::NEWS_API_ORG,
             'is_topstories' => $isTopStories,
             'response_source' => AggregatorType::NEWS_API_ORG,
-            'category' => null,
+            'category' => !empty($params['q']) ? $params['q'] : null,
             'published_at' => Carbon::parse($article->publishedAt, 'UTC')->format("Y-m-d"),
             'user_id' => $userId,
         ];
@@ -147,15 +147,18 @@ class NewsApiOrg implements NewsApiInterface
         $metaData = [];
 
         if (!empty($responseData) && $responseData->totalResults > 0) {
-            // if total results are over 2000 per category as q item then keep only 2000 for API call issue
+            // if total results are over 2000 per category as q item then keep only 2000 for API call limitation issue
+            Log::info('Fetching [NewsApiOrg]:total item found ===> : ', [$responseData->totalResults]);
             $metaData['total'] = $responseData->totalResults > 2000 ? 2000 : $responseData->totalResults;
-            $metaData['page'] = intval($params['page']);
+            $metaData['page'] = !empty($params['page']) ? intval($params['page']) : 1;
             $metaData['perPage'] = 100;
-            $metaData['pageToIterate'] = intval(floor(($metaData['total'] / $metaData['perPage']) - $metaData['page']));
+            $metaData['pageToIterate'] = intval(ceil(($metaData['total'] / $metaData['perPage']) - $metaData['page']));
 
             foreach ($responseData->articles as $article) {
-                $payload = self::transform($article, false, $userId);
-                array_push($responseList, $payload);
+                if ($article->title !== "[Removed]" || $article->content !== "[Removed]") {
+                    $payload = self::transform($article, false, $userId, $params);
+                    array_push($responseList, $payload);
+                }
             }
         }
 

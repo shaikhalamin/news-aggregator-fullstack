@@ -132,7 +132,7 @@ class GuardianApi implements NewsApiInterface
 
     public function all($params = [])
     {
-        Log::info('[GuardianApi]: all api call started  ===> : ');
+        Log::info('[GuardianApi]: all api call started  ===> : ', $params);
         try {
             $httpQuery = [
                 // 'page' => 1,
@@ -190,7 +190,7 @@ class GuardianApi implements NewsApiInterface
         }
     }
 
-    public static function transform(mixed $article, bool $isTopStories =  false, ?int $userId = null)
+    public static function transform(mixed $article, bool $isTopStories =  false, ?int $userId = null, ?array $params = [])
     {
         return [
             'title' => $article['webTitle'],
@@ -220,7 +220,7 @@ class GuardianApi implements NewsApiInterface
             $metaData['total'] = $responseData['response']['total'];
             $metaData['page'] = $responseData['response']['currentPage'];
             $metaData['perPage'] = $responseData['response']['pageSize'];
-            $metaData['pageToIterate'] = intval(floor(($metaData['total'] / $metaData['perPage']) - $metaData['page']));
+            $metaData['pageToIterate'] = intval(ceil(($metaData['total'] / $metaData['perPage']) - $metaData['page']));
 
             foreach ($responseData['response']['results'] as $article) {
                 $payload = self::transform($article, false, $userId);
