@@ -19,6 +19,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install
 RUN composer dump-autoload --no-scripts
 RUN php artisan key:generate
+RUN chown -R www-data:www-data /var/www/html/vendor /var/www/html/storage
 RUN chown -R www-data:www-data /var/www/html/storage/logs
 
 EXPOSE 9000

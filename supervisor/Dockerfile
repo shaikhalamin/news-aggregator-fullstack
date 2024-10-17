@@ -9,3 +9,7 @@ RUN mkdir -p "/etc/supervisor/logs"
 COPY supervisord.conf /etc/supervisor/supervisord.conf
 
 CMD ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisor/supervisord.conf"]
+
+# Dockerfile for backend-service
+
+
