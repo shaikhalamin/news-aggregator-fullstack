@@ -14,6 +14,8 @@ COPY composer.* ./
 
 COPY . .
 
+COPY supervisord.conf /etc/supervisor/supervisord.conf
+
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN composer install
@@ -23,4 +25,5 @@ RUN chown -R www-data:www-data /var/www/html/vendor /var/www/html/storage
 RUN chown -R www-data:www-data /var/www/html/storage/logs
 
 EXPOSE 9000
-CMD ["php", "artisan", "serve", "--host", "0.0.0.0", "--port=8000"]
+
+CMD php artisan serve --host=0.0.0.0 --port=8000 && supervisord -c /etc/supervisor/supervisord.conf

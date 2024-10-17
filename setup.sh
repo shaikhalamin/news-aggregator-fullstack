@@ -12,7 +12,7 @@ echo "New docker-compose build started ..."
 echo "Please wait for a while to build with no cache ...."
 echo "Run container with detach mode ...."
 #docker-compose up --build -d
-docker-compose build --no-cache
+docker-compose build --no-cache --pull
 docker-compose up -d
 echo "Generating new backend app key ...."
 docker exec -it backend-container php artisan key:generate
