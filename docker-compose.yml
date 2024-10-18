@@ -11,7 +11,7 @@ services:
     container_name: backend-container
     restart: unless-stopped
     # command: php artisan serve --host=0.0.0.0 --port=8000
-    # command: /bin/bash -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
+    command: /bin/bash -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
     ports:
       - "9000:8000"
     volumes:
@@ -50,7 +50,7 @@ services:
     networks:
       - news-network
     command: >
-      /bin/sh -c "composer install && /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf"
+      /bin/bash -c "composer install && /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf"
 
   frontend-service:
     build:
