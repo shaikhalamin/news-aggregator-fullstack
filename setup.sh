@@ -15,9 +15,10 @@ echo "Run container with detach mode ...."
 docker-compose build --no-cache --pull
 docker-compose up -d
 
-echo "Waiting for MySQL db container ready ......\n"
-sleep 20
+echo "Waiting for MySQL db and backend container ready ......\n"
+sleep 30
 
+echo "Installing dependency again ..."
 docker exec -it backend-container composer install
 
 echo "Migrating backend schema"
@@ -29,19 +30,6 @@ docker exec -it backend-container php artisan cache:clear
 docker exec -it backend-container php artisan config:clear
 
 echo "Please click http://localhost:7890 to visit the app"
-# docker exec -it backend-container php artisan queue:work
 
-# docker exec -it backend-container mkdir -p /etc/supervisor/logs
-
-# docker exec -it backend-container /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
-
-
-
-
-# Fetch news feed
-# docker exec -it backend-container php artisan newsfeed:fetch
-
-# echo "Running lint on frontend container"
-# docker exec -it frontend-container npm i dompurify
 
 
