@@ -22,9 +22,9 @@ RUN php artisan key:generate
 
 RUN chown -R www-data:www-data /var/www/html/vendor /var/www/html/storage
 RUN chown -R www-data:www-data /var/www/html/storage/logs
-RUN chmod -R 775 /var/www/html/storage
-RUN chmod -R 755 /var/www/html/vendor
+RUN chmod -R 777 /var/www/html/storage
+RUN chmod -R 777 /var/www/html/vendor
 
 EXPOSE 9000
 
-# CMD ["php", "artisan", "serve", "--host", "0.0.0.0", "--port=8000"]
+CMD ["php", "artisan", "serve", "--host", "0.0.0.0", "--port=8000"]
