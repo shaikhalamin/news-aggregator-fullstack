@@ -14,18 +14,17 @@ echo "Run container with detach mode ...."
 #docker-compose up --build -d
 docker-compose build --no-cache --pull
 docker-compose up -d
-echo "Generating new backend app key ...."
-docker exec -it backend-container php artisan key:generate
 
-# echo "Backend config cache clearing ..."
-docker exec -it backend-container php artisan cache:clear
-docker exec -it backend-container php artisan config:clear
 echo "Waiting for MySQL db container ready ......\n"
 sleep 15
 echo "Migrating backend schema"
 docker exec -it backend-container php artisan migrate:fresh
 
 docker exec -it backend-container php artisan key:generate
+# echo "Backend config cache clearing ..."
+docker exec -it backend-container php artisan cache:clear
+docker exec -it backend-container php artisan config:clear
+
 echo "Please click http://localhost:7890 to visit the app"
 # docker exec -it backend-container php artisan queue:work
 

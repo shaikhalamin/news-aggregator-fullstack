@@ -14,17 +14,11 @@ COPY composer.* ./
 
 COPY . .
 
-# RUN mkdir -p "/etc/supervisor/logs"
-
-# COPY supervisord.conf /etc/supervisor/supervisord.conf
-
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN composer install
 RUN composer dump-autoload --no-scripts
 RUN php artisan key:generate
-
-
 
 RUN chown -R www-data:www-data /var/www/html/vendor /var/www/html/storage
 RUN chown -R www-data:www-data /var/www/html/storage/logs
@@ -33,6 +27,4 @@ RUN chmod -R 755 /var/www/html/vendor
 
 EXPOSE 9000
 
-CMD ["php", "artisan", "serve", "--host", "0.0.0.0", "--port=8000"]
-
-# CMD ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisor/supervisord.conf"]
+# CMD ["php", "artisan", "serve", "--host", "0.0.0.0", "--port=8000"]

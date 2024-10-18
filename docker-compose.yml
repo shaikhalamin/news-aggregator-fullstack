@@ -11,12 +11,12 @@ services:
     container_name: backend-container
     restart: unless-stopped
     # command: php artisan serve --host=0.0.0.0 --port=8000
+    command: /bin/bash -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
     ports:
       - "9000:8000"
     volumes:
       - ./news-aggregator-be:/var/www/html:rw
       - ./news-aggregator-be/storage:/var/www/html/storage
-      - /var/www/html/vendor
     depends_on:
       - aggregator_db
     environment:
@@ -45,13 +45,12 @@ services:
     container_name: laravel-supervisor
     volumes:
       - ./news-aggregator-be:/var/www/html:rw,delegated
-      # - ./supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
-    depends_on:
-      - backend-service
     environment:
       - TZ=Asia/Dhaka
     networks:
       - news-network
+    command: >
+      /bin/sh -c "composer install && /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf"
 
   frontend-service:
     build:
