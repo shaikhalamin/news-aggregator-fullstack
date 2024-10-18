@@ -33,6 +33,7 @@ Step 5: ./setup.sh
 
 If you find some terminal error after initial setup like migration setup error, please run below commands manually to finish initial setup:
 
+docker exec -it backend-container composer install
 docker exec -it backend-container php artisan migrate:fresh
 docker exec -it backend-container php artisan key:generate
 docker exec -it backend-container php artisan cache:clear

@@ -11,7 +11,7 @@ services:
     container_name: backend-container
     restart: unless-stopped
     # command: php artisan serve --host=0.0.0.0 --port=8000
-    command: /bin/bash -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
+    # command: /bin/bash -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
     ports:
       - "9000:8000"
     volumes:
@@ -43,6 +43,7 @@ services:
       context: ./supervisor
       dockerfile: Dockerfile
     container_name: laravel-supervisor
+    restart: unless-stopped
     volumes:
       - ./news-aggregator-be:/var/www/html:rw,delegated
     environment:

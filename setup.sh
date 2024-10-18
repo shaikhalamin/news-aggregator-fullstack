@@ -16,7 +16,10 @@ docker-compose build --no-cache --pull
 docker-compose up -d
 
 echo "Waiting for MySQL db container ready ......\n"
-sleep 15
+sleep 20
+
+docker exec -it backend-container composer install
+
 echo "Migrating backend schema"
 docker exec -it backend-container php artisan migrate:fresh
 

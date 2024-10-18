@@ -27,4 +27,4 @@ RUN chmod -R 777 /var/www/html/vendor
 
 EXPOSE 9000
 
-# CMD ["php", "artisan", "serve", "--host", "0.0.0.0", "--port=8000"]
+CMD ["php", "artisan", "serve", "--host", "0.0.0.0", "--port=8000"]
